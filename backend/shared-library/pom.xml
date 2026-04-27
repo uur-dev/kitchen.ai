@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!--
+        PARENT: Spring Boot Starter Parent
+        - Provides default dependency versions (no need to specify versions manually)
+        - Provides default plugin configurations
+        - Acts as a bill of materials (BOM) for all Spring Boot dependencies
+    -->
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>4.0.5</version>
+        <relativePath/> <!-- Looks up parent from Maven central, not local file system -->
+    </parent>
+
+    <!--
+        PROJECT IDENTITY
+        - groupId:    Your organization/company namespace (reverse domain style)
+        - artifactId: The unique name of this module/library
+        - version:    SNAPSHOT means it's still in development (not a stable release)
+    -->
+    <groupId>com.br3akPoint</groupId>
+    <artifactId>shared-library</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+
+    <properties>
+        <!-- Sets the Java version used to compile this project -->
+        <java.version>17</java.version>
+    </properties>
+
+    <dependencies>
+
+        <!--
+            SPRING BOOT STARTER WEB
+            - This is what provides @RestControllerAdvice, @RestController,
+              ResponseEntity, @RequestMapping, @GetMapping, etc.
+            - Internally includes: spring-webmvc, jackson (JSON), embedded Tomcat
+            - marked as <optional> so that microservices that import this shared-library
+              are NOT forced to become web apps if they don't need to be
+        -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <!--
+            SPRING BOOT STARTER (Core)
+            - Provides core Spring features: @Component, @Service, @Bean,
+              @Autowired, application context, logging (Logback), etc.
+            - Does NOT include web/HTTP layer (that's starter-web above)
+            - Also marked optional so consumers can choose what they need
+        -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <!--
+            LOMBOK
+            - Reduces boilerplate code via annotations:
+              @Data, @Getter, @Setter, @Builder, @AllArgsConstructor, etc.
+            - Only needed at compile time (annotation processor), not at runtime
+            - marked optional so consumers are not forced to use Lombok
+        -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
+
+        <!--
+            SPRING BOOT TEST
+            - Provides testing utilities: @SpringBootTest, MockMvc, Mockito, JUnit 5
+            - scope=test means this dependency is ONLY available during testing
+            - It will NOT be included in the final JAR or passed to consumers
+        -->
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.validation</groupId>
+            <artifactId>jakarta.validation-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-core</artifactId>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+
+            <!--
+                MAVEN JAR PLUGIN
+                - Packages this project as a standard importable JAR file
+                - This is the CORRECT plugin for shared libraries
+
+                ⚠️  DO NOT use spring-boot-maven-plugin here because:
+                    - It creates a fat/executable JAR (with embedded Tomcat, etc.)
+                    - Fat JARs cannot be imported as dependencies by other projects
+                    - Other microservices would fail to resolve classes from it
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+            </plugin>
+
+        </plugins>
+    </build>
+
+</project>
