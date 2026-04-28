@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  postgres-db:
+    image: postgres:16
+    container_name: postgres-db
+    networks:
+      - dev-network
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin123
+      POSTGRES_DB: postgres
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  pgadmin-web:
+    image: dpage/pgadmin4
+    container_name: pgadmin-web
+    networks:
+      - dev-network
+    ports:
+      - "5050:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin123
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+
+volumes:
+  postgres-data:
+  pgadmin-data:
+
+networks:
+  dev-network:
+    external: true
