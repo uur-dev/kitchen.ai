@@ -50,8 +50,13 @@ public class JWTAuthValidationFilter extends OncePerRequestFilter {
             //get user id
             var userId = claims.get("userId", Long.class);
             var email = (String) claims.get("email", String.class);
+            var deviceType = (String) claims.get("device_type", String.class);
 
-            UserRequestData userRequestData = new UserRequestData(userId, email);
+            UserRequestData userRequestData = UserRequestData.builder()
+                    .userId(userId)
+                    .email(email)
+                    .deviceType(deviceType)
+                    .build();
 
             UsernamePasswordAuthenticationToken auth =
                     new UsernamePasswordAuthenticationToken(userRequestData, null, null);

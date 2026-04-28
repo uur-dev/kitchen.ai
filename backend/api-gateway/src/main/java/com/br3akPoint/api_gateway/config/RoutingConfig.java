@@ -35,15 +35,22 @@ public class RoutingConfig {
                 ))
                 // --- HEADER FORWARDING LOGIC START ---
                 .before(request -> {
-                    // SecurityContext se validated user details uthayen
                     var auth = SecurityContextHolder.getContext().getAuthentication();
 
                     if (auth != null && auth.isAuthenticated() && auth.getPrincipal() instanceof UserRequestData userRequest) {
                         if (userRequest.getUserId() != null) {
-                            return ServerRequest.from(request)
-                                    .header("X-User-Id", String.valueOf(userRequest.getUserId()))
-                                    .header("X-User-Email", userRequest.getEmail())
-                                    .build();
+                            var requestBuilder =  ServerRequest.from(request)
+                                    .header("X-User-Id", String.valueOf(userRequest.getUserId()));
+
+                            if(userRequest.getEmail() != null) {
+                                requestBuilder.header("X-User-Email", userRequest.getEmail());
+                            }
+
+                            if(userRequest.getDeviceType() != null) {
+                                requestBuilder.header("X-Device-Type", userRequest.getDeviceType());
+                            }
+
+                            return requestBuilder.build();
                         }
                     }
                     return request;

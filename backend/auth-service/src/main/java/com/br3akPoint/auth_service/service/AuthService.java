@@ -13,6 +13,8 @@ import com.br3akPoint.util.PasswordUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
+
 @Service
 public class AuthService {
     private final UserRepository userRepository;
@@ -53,7 +55,7 @@ public class AuthService {
 
         if(isCorrectPassword) {
             //generate access token
-            String accessToken = jwtUtil.generateAccessToken(user.getId(), email);
+            String accessToken = jwtUtil.generateAccessToken(user.getId(), email, Map.of("device_type", deviceType));
             String refreshToken = jwtUtil.generateRefreshToken();
             var refreshTokenExpiry = jwtUtil.getRefreshTokenExpiry();
 
