@@ -43,7 +43,10 @@ public class ClientDeviceFilter extends OncePerRequestFilter {
         }
 
         try {
-            clientValidator.validate(appId, signature);
+            String deviceType = clientValidator.validate(appId, signature);
+            //set device type in request context
+            request.setAttribute("device_type", deviceType);
+
             filterChain.doFilter(request, response);
         } catch (Exception e) {
             handlerExceptionResolver.resolveException(request, response, null, e);

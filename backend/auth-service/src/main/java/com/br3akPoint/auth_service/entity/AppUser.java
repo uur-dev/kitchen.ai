@@ -4,9 +4,15 @@ import com.br3akPoint.auth_service.constant.SocialProviderEnum;
 import com.br3akPoint.entity.BaseEntity;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
+import lombok.*;
 
 @Entity
 @Table(name = "user_auth")
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class AppUser extends BaseEntity {
 
     @Column(name = "email", nullable = false, unique = true)

@@ -2,15 +2,18 @@ package com.br3akPoint.entity;
 
 import com.br3akPoint.util.UnixTimestampSerializer;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import jakarta.persistence.*;
+import lombok.Getter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import tools.jackson.databind.annotation.JsonSerialize;
+
 import java.time.Instant;
 
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
+@Getter
 public abstract class BaseEntity {
 
     @Id

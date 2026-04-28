@@ -40,6 +40,14 @@ public class ApiResponse<T> {
                 .build();
     }
 
+    public static <T> ApiResponse<T> responseData(T data) {
+        return ApiResponse.<T>builder()
+                .statusCode(200)
+                .status(true)
+                .data(data)
+                .build();
+    }
+
     // ── Error ─────────────────────────────────────────────────────────────────
 
     private static ApiResponse<?> buildError(int statusCode, ApiError error) {
