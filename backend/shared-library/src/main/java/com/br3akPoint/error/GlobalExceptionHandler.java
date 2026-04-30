@@ -1,5 +1,6 @@
 package com.br3akPoint.error;
 
+import com.br3akPoint.constant.CommonServerErrors;
 import com.br3akPoint.response.ApiResponse;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
@@ -74,7 +75,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public ResponseEntity<ApiResponse<?>> handleMethodNotAllowed(HttpRequestMethodNotSupportedException ex) {
-        return response(HttpStatus.METHOD_NOT_ALLOWED, "Method not allowed: " + ex.getMethod());
+        return response(HttpStatus.METHOD_NOT_ALLOWED, CommonServerErrors.MethodNotAllowed.getMessage());
     }
 
     @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
@@ -84,7 +85,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     public ResponseEntity<ApiResponse<?>> handleMaxUploadSize(MaxUploadSizeExceededException ex) {
-        return response(HttpStatus.CONTENT_TOO_LARGE, "File size exceeds the maximum allowed limit");
+        return response(HttpStatus.CONTENT_TOO_LARGE, CommonServerErrors.MaxUploadSizeExceeded.getMessage());
     }
 
     // ── Routing ───────────────────────────────────────────────────────────────

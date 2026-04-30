@@ -13,6 +13,7 @@ public class UserContextInterceptor implements HandlerInterceptor {
         String xUserId = request.getHeader("X-User-Id");
         String xEmail = request.getHeader("X-User-Email");
         String xDeviceType = request.getHeader("X-Device-Type");
+        String xDeviceId = request.getHeader("X-Device-Id");
 
         if (xUserId != null && !xUserId.isBlank()) {
             UserContext.setUserId(Long.parseLong(xUserId));
@@ -25,6 +26,10 @@ public class UserContextInterceptor implements HandlerInterceptor {
         if(xDeviceType != null && !xDeviceType.isBlank()) {
             UserContext.setDeviceType(xDeviceType);
         }
+        if(xDeviceId != null && !xDeviceId.isBlank()) {
+            UserContext.setDeviceId(xDeviceId);
+        }
+
 
         return true;
     }

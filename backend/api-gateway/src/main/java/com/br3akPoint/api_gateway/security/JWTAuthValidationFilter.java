@@ -3,6 +3,7 @@ package com.br3akPoint.api_gateway.security;
 import com.br3akPoint.api_gateway.constant.ServerError;
 import com.br3akPoint.api_gateway.data.UserRequestData;
 import com.br3akPoint.error.BusinessException;
+import com.br3akPoint.service.RedisService;
 import com.br3akPoint.util.JWTUtil;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
@@ -23,12 +24,15 @@ import java.io.IOException;
 public class JWTAuthValidationFilter extends OncePerRequestFilter {
     private final HandlerExceptionResolver handlerExceptionResolver;
     private final JWTUtil jwtUtil;
+    private final RedisService redisService;
 
     @Autowired
     public JWTAuthValidationFilter(JWTUtil jwtUtil,
+            RedisService redisService,
             @Qualifier("handlerExceptionResolver") HandlerExceptionResolver resolver) {
         this.handlerExceptionResolver = resolver;
         this.jwtUtil = jwtUtil;
+        this.redisService = redisService;
     }
 
     @Override
@@ -41,9 +45,7 @@ public class JWTAuthValidationFilter extends OncePerRequestFilter {
         }
 
         String authToken = tokenHeaderValue.replace("Bearer ", "");
-
-        //Step 1: First Check Auth Token in Blacklist list (Redis)
-        //Step 2: If Token is not blacklisted, then decode token
+        ///Step 1: If Token is not blacklisted, then decode token
         try {
             //get claims
             var claims = jwtUtil.extractAll(authToken);
@@ -51,11 +53,24 @@ public class JWTAuthValidationFilter extends OncePerRequestFilter {
             var userId = claims.get("userId", Long.class);
             var email = (String) claims.get("email", String.class);
             var deviceType = (String) claims.get("device_type", String.class);
+            var deviceId = (String) claims.get("device_id", String.class);
+            var tokenJTI = (String) claims.get("jti", String.class);
+
+            ///Step 2: First Check Auth Token in Blacklist list (Redis)
+            //redis key
+            String blackListKey = "blacklist:token:" + tokenJTI;
+            // try to get value
+            var blackListed = redisService.getString(blackListKey);
+            if(blackListed.isPresent() && blackListed.get().equals("true")) {
+                handlerExceptionResolver.resolveException(request, response, null, BusinessException.unauthorized(ServerError.Blacklisted_Token));
+                return;
+            }
 
             UserRequestData userRequestData = UserRequestData.builder()
                     .userId(userId)
                     .email(email)
                     .deviceType(deviceType)
+                    .deviceId(deviceId)
                     .build();
 
             UsernamePasswordAuthenticationToken auth =

@@ -25,6 +25,9 @@ public class AuthSession extends BaseEntity {
     @Column(name = "device_type", nullable = false)
     private DeviceTypeEnum deviceType;
 
+    @Column(name = "device_id", nullable = false)
+    private String deviceId;
+
     @Column(name = "refresh_token", nullable = false, unique = true)
     private String refreshToken;
 

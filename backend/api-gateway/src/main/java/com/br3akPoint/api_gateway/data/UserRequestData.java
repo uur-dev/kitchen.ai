@@ -11,4 +11,5 @@ public class UserRequestData {
     private String email;
     private Long userId;
     private String deviceType;
+    private String deviceId;
 }

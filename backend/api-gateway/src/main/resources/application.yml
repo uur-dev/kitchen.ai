@@ -5,6 +5,23 @@ spring:
   application:
     name: api-gateway
 
+  # redis configs
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      password: ${REDIS_PASSWORD}
+      ssl:
+        enabled: ${REDIS_SSL_ENABLED}
+      connect-timeout: ${REDIS_CONNECT_TIMEOUT_MS}
+      timeout: ${REDIS_COMMAND_TIMEOUT_MS}
+      lettuce:
+        pool:
+          min-idle: ${REDIS_POOL_MIN_IDLE}
+          max-idle: ${REDIS_POOL_MAX_IDLE}
+          max-active: ${REDIS_POOL_MAX_ACTIVE}
+          max-wait: ${REDIS_POOL_MAX_WAIT_MS}
+
   cloud:
     gateway:
       server:
@@ -21,6 +38,12 @@ eureka:
     fetch-registry: true
   instance:
     prefer-ip-address: true
+
+logging:
+  level:
+    org.flywaydb: DEBUG
+    io.lettuce.core: DEBUG
+    org.springframework.data.redis: DEBUG
 
 jwt:
   secret: ${JWT_SECRET}
