@@ -50,6 +50,10 @@ public class RoutingConfig {
                                 requestBuilder.header("X-Device-Type", userRequest.getDeviceType());
                             }
 
+                            if(userRequest.getDeviceId() != null) {
+                                requestBuilder.header("X-Device-Id", userRequest.getDeviceId());
+                            }
+
                             return requestBuilder.build();
                         }
                     }
@@ -67,7 +71,7 @@ public class RoutingConfig {
         return buildRoute(
                 "recipe-service",
                 "/v1/api/recipe",
-                "/api/v1",
+                "/recipe",
                 "RECIPE-SERVICE"
         );
     }
@@ -79,6 +83,16 @@ public class RoutingConfig {
                 "/v1/api/auth",
                 "/auth",
                 "AUTH-SERVICE"
+        );
+    }
+
+    @Bean
+    public RouterFunction<ServerResponse> storageServiceRoute() {
+        return buildRoute(
+                "storage-service",
+                "/v1/api/storage",
+                "/storage",
+                "STORAGE-SERVICE"
         );
     }
 }

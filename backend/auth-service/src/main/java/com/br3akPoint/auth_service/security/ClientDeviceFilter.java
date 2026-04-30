@@ -1,6 +1,7 @@
 package com.br3akPoint.auth_service.security;
 
 import com.br3akPoint.auth_service.constant.ServerErrors;
+import com.br3akPoint.auth_service.data.DeviceContext;
 import com.br3akPoint.auth_service.util.DeviceClientValidator;
 import com.br3akPoint.error.BusinessException;
 import jakarta.servlet.FilterChain;
@@ -43,9 +44,9 @@ public class ClientDeviceFilter extends OncePerRequestFilter {
         }
 
         try {
-            String deviceType = clientValidator.validate(appId, signature);
+            DeviceContext deviceContext = clientValidator.validate(appId, signature);
             //set device type in request context
-            request.setAttribute("device_type", deviceType);
+            request.setAttribute("device_context", deviceContext);
 
             filterChain.doFilter(request, response);
         } catch (Exception e) {

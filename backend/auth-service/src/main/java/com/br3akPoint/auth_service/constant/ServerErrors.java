@@ -10,4 +10,8 @@ public class ServerErrors {
     ///auth errors
     public static final String User_Already_Exist = "server_error_user_already_exist";
     public static final String Invalid_User_or_Password = "server_error_invalid_user_or_password";
+
+    ///refresh token errors
+    public static final String Refresh_Token_Missing = "server_error_refresh_token_required";
+    public static final String Refresh_Token_Invalid = "server_error_invalid_refresh_token";
 }

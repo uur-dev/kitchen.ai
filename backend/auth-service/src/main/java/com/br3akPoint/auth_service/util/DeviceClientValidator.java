@@ -1,6 +1,7 @@
 package com.br3akPoint.auth_service.util;
 
 import com.br3akPoint.auth_service.constant.ServerErrors;
+import com.br3akPoint.auth_service.data.DeviceContext;
 import com.br3akPoint.auth_service.entity.ClientDevice;
 import com.br3akPoint.auth_service.service.ClientDeviceService;
 import com.br3akPoint.error.BusinessException;
@@ -26,7 +27,7 @@ public class DeviceClientValidator {
         clientService = clientDeviceService;
     }
 
-    public String validate(String requestAppId, String requestSignature) throws Exception {
+    public DeviceContext validate(String requestAppId, String requestSignature) throws Exception {
         // Fetch client device from DB using app_id from request header
         ClientDevice clientDevice = clientService.getByAppId(requestAppId);
         String appSecret = clientDevice.getAppSecret();
@@ -40,16 +41,17 @@ public class DeviceClientValidator {
         }
 
         // Parse decrypted payload into key-value pairs
-        // Expected format: now=<timestamp>&expiry=<timestamp>&app_id=<app_id>&nonce=<uuid>
+        // Expected format: now=<timestamp>&expiry=<timestamp>&app_id=<app_id>&device_id=<device_id>&nonce=<uuid>
         Map<String, String> params = parsePayload(decryptedPayload);
 
         String payloadAppId = params.get("app_id");
         String nowStr       = params.get("now");
         String expiryStr    = params.get("expiry");
         String nonce        = params.get("nonce");
+        String deviceId     = params.get("device_id");
 
         // Ensure all required fields are present in the payload
-        if (payloadAppId == null || nowStr == null || expiryStr == null || nonce == null) {
+        if (payloadAppId == null || nowStr == null || expiryStr == null || nonce == null || deviceId == null) {
             throw BusinessException.badRequest(ServerErrors.Invalid_Signatures);
         }
 
@@ -84,7 +86,10 @@ public class DeviceClientValidator {
             throw BusinessException.badRequest(ServerErrors.Signature_Expired);
         }
 
-        return clientDevice.getDeviceType().name();
+        return DeviceContext.builder()
+                .deviceId(deviceId)
+                .deviceType(clientDevice.getDeviceType().name())
+                .build();
     }
 
     /**
