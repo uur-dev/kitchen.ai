@@ -5,16 +5,13 @@ import com.br3akPoint.auth_service.data.dto.request.AuthRequestDTO;
 import com.br3akPoint.auth_service.data.dto.response.LoginAuthDTO;
 import com.br3akPoint.auth_service.data.dto.response.RefreshTokenDTO;
 import com.br3akPoint.auth_service.service.AuthService;
-import com.br3akPoint.response.ApiResponse;
-import com.br3akPoint.service.RedisService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import response.ApiResponse;
 
-import java.time.Duration;
 import java.util.Map;
 
 @RestController
@@ -23,7 +20,6 @@ import java.util.Map;
 public class AuthController {
 
     private final AuthService authService;
-    private final RedisService redisService;
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<?>> login(@Valid @RequestBody AuthRequestDTO dto, HttpServletRequest request) throws Exception {

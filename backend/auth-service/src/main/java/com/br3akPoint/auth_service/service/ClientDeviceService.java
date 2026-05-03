@@ -3,7 +3,7 @@ package com.br3akPoint.auth_service.service;
 import com.br3akPoint.auth_service.constant.ServerErrors;
 import com.br3akPoint.auth_service.entity.ClientDevice;
 import com.br3akPoint.auth_service.repository.ClientDeviceRepository;
-import com.br3akPoint.error.BusinessException;
+import error.BusinessException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

@@ -1,11 +1,11 @@
 package com.br3akPoint.auth_service.entity;
 
 import com.br3akPoint.auth_service.constant.DeviceTypeEnum;
-import com.br3akPoint.entity.BaseEntity;
-import com.br3akPoint.util.UnixTimestampSerializer;
+import entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import tools.jackson.databind.annotation.JsonSerialize;
+import util.UnixTimestampSerializer;
 
 import java.time.Instant;
 

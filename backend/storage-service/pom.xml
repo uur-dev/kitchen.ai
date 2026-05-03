@@ -51,10 +51,9 @@
 
 	<dependencies>
 
-		<!--		shared library-->
 		<dependency>
 			<groupId>com.br3akPoint</groupId>
-			<artifactId>shared-library</artifactId>
+			<artifactId>common</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 

@@ -1,6 +1,5 @@
 package com.br3akPoint.recipe_service.service;
 
-import com.br3akPoint.error.BusinessException;
 import com.br3akPoint.recipe_service.constant.RecipeRequestType;
 import com.br3akPoint.recipe_service.constant.RecipeStatus;
 import com.br3akPoint.recipe_service.constant.ServerError;
@@ -9,24 +8,22 @@ import com.br3akPoint.recipe_service.entity.Recipe;
 import com.br3akPoint.recipe_service.entity.RecipeRequest;
 import com.br3akPoint.recipe_service.repository.RecipeRepository;
 import com.br3akPoint.recipe_service.repository.RecipeRequestRepo;
-import com.br3akPoint.util.UserContext;
-import org.springframework.beans.factory.annotation.Autowired;
+import error.BusinessException;
+import event.EventRecipeRequestCreated;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import util.UserContext;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class RecipeService {
     private final RecipeRequestRepo requestRepo;
     private final RecipeRepository recipeRepository;
-
-    @Autowired
-    public RecipeService(RecipeRequestRepo requestRepo, RecipeRepository recipeRepository) {
-        this.requestRepo = requestRepo;
-        this.recipeRepository = recipeRepository;
-    }
+    private final RecipeEventPublisherService publisherService;
 
     public RecipeRequest addRecipeRequest(String content, String requestType) {
         RecipeRequest request = RecipeRequest.builder()
@@ -37,6 +34,13 @@ public class RecipeService {
                 .build();
 
         requestRepo.save(request);
+
+        publisherService.publishRecipeRequestCreated(EventRecipeRequestCreated.builder()
+                        .requestId(request.getId())
+                        .userId(request.getUserId())
+                        .content(request.getContent())
+                        .type(request.getType().name())
+                .build());
 
         return request;
     }

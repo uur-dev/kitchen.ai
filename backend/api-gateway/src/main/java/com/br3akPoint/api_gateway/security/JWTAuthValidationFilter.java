@@ -2,9 +2,7 @@ package com.br3akPoint.api_gateway.security;
 
 import com.br3akPoint.api_gateway.constant.ServerError;
 import com.br3akPoint.api_gateway.data.UserRequestData;
-import com.br3akPoint.error.BusinessException;
-import com.br3akPoint.service.RedisService;
-import com.br3akPoint.util.JWTUtil;
+import error.BusinessException;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -17,6 +15,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
+import service.RedisService;
+import util.JWTUtil;
 
 import java.io.IOException;
 

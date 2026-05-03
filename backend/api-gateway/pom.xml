@@ -19,10 +19,28 @@
 	</properties>
 
 	<dependencies>
-		<!--		shared library-->
+
 		<dependency>
 			<groupId>com.br3akPoint</groupId>
-			<artifactId>shared-library</artifactId>
+			<artifactId>common</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.br3akPoint</groupId>
+			<artifactId>security</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.br3akPoint</groupId>
+			<artifactId>utils</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.br3akPoint</groupId>
+			<artifactId>redis</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 

@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.br3akPoint</groupId>
+        <artifactId>shared-library</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>security</artifactId>
+
+    <properties>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <dependencies>
+
+        <!--
+          SPRING BOOT STARTER WEB
+          - This is what provides @RestControllerAdvice, @RestController,
+            ResponseEntity, @RequestMapping, @GetMapping, etc.
+          - Internally includes: spring-webmvc, jackson (JSON), embedded Tomcat
+          - marked as <optional> so that microservices that import this shared-library
+            are NOT forced to become web apps if they don't need to be
+      -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <!--
+            SPRING BOOT STARTER (Core)
+            - Provides core Spring features: @Component, @Service, @Bean,
+              @Autowired, application context, logging (Logback), etc.
+            - Does NOT include web/HTTP layer (that's starter-web above)
+            - Also marked optional so consumers can choose what they need
+        -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <!--
+         LOMBOK
+         - Reduces boilerplate code via annotations:
+           @Data, @Getter, @Setter, @Builder, @AllArgsConstructor, etc.
+         - Only needed at compile time (annotation processor), not at runtime
+         - marked optional so consumers are not forced to use Lombok
+     -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- JWT Token -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+            <version>0.13.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <version>0.13.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
+            <version>0.13.0</version>
+            <!-- runtime hatao -->
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-crypto</artifactId>
+        </dependency>
+        <!-- JWT Token End -->
+
+
+    </dependencies>
+
+</project>

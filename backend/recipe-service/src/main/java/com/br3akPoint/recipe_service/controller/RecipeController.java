@@ -5,12 +5,12 @@ import com.br3akPoint.recipe_service.data.dto.request.RecipeRequestDTO;
 import com.br3akPoint.recipe_service.entity.Recipe;
 import com.br3akPoint.recipe_service.entity.RecipeRequest;
 import com.br3akPoint.recipe_service.service.RecipeService;
-import com.br3akPoint.response.ApiResponse;
-import com.br3akPoint.util.UserContext;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import response.ApiResponse;
+import util.UserContext;
 
 import java.util.List;
 

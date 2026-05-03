@@ -1,10 +1,8 @@
 package com.br3akPoint.auth_service.entity;
 
 import com.br3akPoint.auth_service.constant.DeviceTypeEnum;
-import com.br3akPoint.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.Type;
 
 @Entity
 @Table(name = "client_devices")

@@ -1,0 +1,33 @@
+server:
+  port: 0
+
+spring:
+  application:
+    name: ai-service
+
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USER:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
+    connection-timeout: 5000ms
+
+    listener:
+      simple:
+        retry:
+          enabled: true
+          initial-interval: 2000ms # Wait 2s before 1st retry
+          multiplier: 2.0 # Exponential backoff (2s, 4s, 8s)
+          max-retries: 3
+        default-requeue-rejected: false # Crucial: Sends to DLQ after retries fail
+        acknowledge-mode: auto
+
+# Eureka Client Configuration
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true

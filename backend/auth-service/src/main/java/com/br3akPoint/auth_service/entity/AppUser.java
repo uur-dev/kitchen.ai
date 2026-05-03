@@ -1,8 +1,8 @@
 package com.br3akPoint.auth_service.entity;
 
 import com.br3akPoint.auth_service.constant.SocialProviderEnum;
-import com.br3akPoint.entity.BaseEntity;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 

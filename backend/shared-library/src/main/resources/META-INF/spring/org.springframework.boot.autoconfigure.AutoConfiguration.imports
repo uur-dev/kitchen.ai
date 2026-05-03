@@ -1,7 +1,0 @@
-com.br3akPoint.error.GlobalExceptionHandler
-com.br3akPoint.util.PasswordUtil
-com.br3akPoint.config.JWTAutoConfig
-com.br3akPoint.config.SharedConfig
-com.br3akPoint.config.InterceptorConfig
-com.br3akPoint.config.RedisConfig
-com.br3akPoint.service.RedisService

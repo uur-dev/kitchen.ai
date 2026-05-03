@@ -1,7 +1,7 @@
 package com.br3akPoint.recipe_service.entity;
 
-import com.br3akPoint.entity.BaseEntity;
 import com.br3akPoint.recipe_service.constant.RecipeRequestType;
+import entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
