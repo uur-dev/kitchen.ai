@@ -5,6 +5,30 @@ spring:
   application:
     name: ai-service
 
+  ai:
+    google:
+      genai:
+        # ----------------------------------------------------------------
+        # Set your Gemini API key here or via environment variable:
+        #   SPRING_AI_GOOGLE_GENAI_API_KEY=your-key
+        # ----------------------------------------------------------------
+        api-key: ${GEMINI_API_KEY}
+
+        chat:
+          options:
+            # gemini-2.0-flash is fast and cost-effective; swap for
+            # gemini-1.5-pro if you need longer context/better quality
+            model: gemini-2.5-flash-lite
+
+            # Low temperature = more consistent / valid JSON output
+            temperature: 0.3
+
+            # Gemini supports JSON response MIME type — enforce it
+            response-mime-type: application/json
+
+            # Max output tokens (increase for very complex recipes)
+            max-output-tokens: 2048
+
   rabbitmq:
     host: ${RABBITMQ_HOST:localhost}
     port: ${RABBITMQ_PORT:5672}

@@ -1,17 +1,25 @@
 package com.br3akPoint.ai_service.listener;
 
-import com.rabbitmq.client.Channel;
+import com.br3akPoint.ai_service.data.RecipeAIResponse;
+import com.br3akPoint.ai_service.service.RecipeAIService;
+import com.br3akPoint.ai_service.util.UrlMultipartFile;
 import constant.RecipeMessageBrokerKeys;
 import event.EventRecipeRequestCreated;
+import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import org.springframework.amqp.support.AmqpHeaders;
-import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
 public class RecipeAIListener {
+
+    private final RecipeAIService recipeAIService;
+
+    public RecipeAIListener(RecipeAIService recipeAIService) {
+        this.recipeAIService = recipeAIService;
+    }
 
     @RabbitListener(queues = RecipeMessageBrokerKeys.RECIPE_QUEUE_NAME)
     public void processRecipeRequest(
@@ -36,9 +44,21 @@ public class RecipeAIListener {
     }
 
     private void processRecipeWithGenAI(EventRecipeRequestCreated event) throws Exception {
-        // TODO: Integrate your Google GenAI SDK logic here
-        // Example: generateRecipeDetails(event.rawIngredients());
-        throw new Exception("testing");
+        RecipeAIResponse response = null;
+        if(event.getType().equals("text")) {
+            response = recipeAIService.getRecipeByText(event.getContent());
+        } else {
+            var multiPartFile = new UrlMultipartFile(event.getContent());
+            response = recipeAIService.getRecipeByImageOrAudio(multiPartFile);
+        }
+
+        if(response == null) { return;}
+
+        if(response.getStatus()) {
+            log.info("Successfully got AI recipe: {}", response.getTitle());
+        } else if(response.getReason() != null && !response.getReason().isBlank()) {
+            log.info("Error In AI recipe: {}", response.getReason());
+        }
     }
 
 }

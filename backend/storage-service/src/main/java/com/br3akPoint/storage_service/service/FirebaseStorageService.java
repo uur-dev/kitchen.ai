@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -23,7 +24,8 @@ public class FirebaseStorageService {
     }
 
     public String uploadFile(MultipartFile file) throws IOException {
-        String fileName = folderName + "/" + UUID.randomUUID() + "_" + file.getOriginalFilename();
+        String fileName = folderName + "/" + UUID.randomUUID() + "_" + Objects.requireNonNull(file.getOriginalFilename())
+                .toLowerCase().replace(" ", "_");
 
         Blob blob = firebaseBucket.create(fileName, file.getBytes(), file.getContentType());
 

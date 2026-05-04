@@ -15,10 +15,4 @@ public class RabbitMQConfig {
     public MessageConverter jsonMessageConverter() {
         return new JacksonJsonMessageConverter();
     }
-
-    @Bean
-    public Queue aiQueue() {
-        return QueueBuilder.durable(RecipeMessageBrokerKeys.RECIPE_QUEUE_NAME)
-                .build();
-    }
 }
