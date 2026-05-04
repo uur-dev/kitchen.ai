@@ -38,6 +38,7 @@ spring:
 
     listener:
       simple:
+        missing-queues-fatal: false
         retry:
           enabled: true
           initial-interval: 2000ms # Wait 2s before 1st retry

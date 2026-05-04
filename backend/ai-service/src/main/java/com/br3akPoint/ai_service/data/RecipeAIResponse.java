@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.List;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -70,6 +71,15 @@ public class RecipeAIResponse {
 
         @JsonProperty("notes")
         private String notes;
+
+        public Map<String, Object> getMap() {
+            return Map.of(
+                    "name", name,
+                    "quantity", quantity,
+                    "unit", unit,
+                    "notes", notes
+            );
+        }
     }
 
     // ── Nested: Step ────────────────────────────────────────────────────────
@@ -89,6 +99,15 @@ public class RecipeAIResponse {
 
         @JsonProperty("tip")
         private String tip;
+
+        public Map<String, Object> getMap() {
+            return Map.of(
+                    "stepNumber", stepNumber,
+                    "instruction", instruction,
+                    "durationMinutes", durationMinutes,
+                    "tip", tip
+            );
+        }
     }
 
     // ── Nested: NutritionInfo ───────────────────────────────────────────────
@@ -111,5 +130,14 @@ public class RecipeAIResponse {
 
         @JsonProperty("fiberGrams")
         private double fiberGrams;
+
+        public Map<String, Object> getMap() {
+            return Map.of(
+                    "caloriesPerServing", caloriesPerServing,
+                    "proteinGrams", proteinGrams,
+                    "fatGrams", fatGrams,
+                    "fiberGrams", fiberGrams
+            );
+        }
     }
 }

@@ -12,7 +12,7 @@ public class ApiResponse<T> {
 
     private T data;
     private int statusCode;
-    private boolean status;
+    private Boolean status;
     private ApiError error;
 
     public boolean hasData() {
