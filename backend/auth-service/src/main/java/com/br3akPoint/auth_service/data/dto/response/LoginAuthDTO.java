@@ -1,8 +1,8 @@
 package com.br3akPoint.auth_service.data.dto.response;
 
-import com.br3akPoint.util.UnixTimestampSerializer;
 import lombok.*;
 import tools.jackson.databind.annotation.JsonSerialize;
+import util.UnixTimestampSerializer;
 
 import java.time.Instant;
 

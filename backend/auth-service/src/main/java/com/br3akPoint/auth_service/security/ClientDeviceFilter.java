@@ -3,7 +3,7 @@ package com.br3akPoint.auth_service.security;
 import com.br3akPoint.auth_service.constant.ServerErrors;
 import com.br3akPoint.auth_service.data.DeviceContext;
 import com.br3akPoint.auth_service.util.DeviceClientValidator;
-import com.br3akPoint.error.BusinessException;
+import error.BusinessException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

@@ -1,12 +1,11 @@
 package com.br3akPoint.recipe_service;
 
-import com.br3akPoint.config.JWTAutoConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
-@SpringBootApplication(exclude = {
-		JWTAutoConfig.class
-})
+@SpringBootApplication()
+@EnableJpaAuditing
 public class RecipeServiceApplication {
 
 	public static void main(String[] args) {

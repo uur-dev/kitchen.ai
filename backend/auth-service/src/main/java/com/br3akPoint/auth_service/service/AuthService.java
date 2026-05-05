@@ -9,12 +9,12 @@ import com.br3akPoint.auth_service.entity.AppUser;
 import com.br3akPoint.auth_service.entity.AuthSession;
 import com.br3akPoint.auth_service.repository.AuthSessionRepository;
 import com.br3akPoint.auth_service.repository.UserRepository;
-import com.br3akPoint.error.BusinessException;
-import com.br3akPoint.util.JWTUtil;
-import com.br3akPoint.util.PasswordUtil;
+import error.BusinessException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import util.JWTUtil;
+import util.PasswordUtil;
 
 import java.time.Instant;
 import java.util.Map;

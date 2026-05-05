@@ -1,6 +1,5 @@
 package com.br3akPoint.storage_service.controller;
 
-import com.br3akPoint.response.ApiResponse;
 import com.br3akPoint.storage_service.service.FirebaseStorageService;
 import com.br3akPoint.storage_service.util.FileValidator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import response.ApiResponse;
 
 import java.io.IOException;
 import java.util.List;

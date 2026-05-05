@@ -1,32 +1,30 @@
 package com.br3akPoint.recipe_service.service;
 
-import com.br3akPoint.error.BusinessException;
 import com.br3akPoint.recipe_service.constant.RecipeRequestType;
 import com.br3akPoint.recipe_service.constant.RecipeStatus;
 import com.br3akPoint.recipe_service.constant.ServerError;
-import com.br3akPoint.recipe_service.data.dto.request.CreateRecipeRequestDTO;
+import com.br3akPoint.recipe_service.data.mapper.RecipeMapper;
 import com.br3akPoint.recipe_service.entity.Recipe;
 import com.br3akPoint.recipe_service.entity.RecipeRequest;
 import com.br3akPoint.recipe_service.repository.RecipeRepository;
 import com.br3akPoint.recipe_service.repository.RecipeRequestRepo;
-import com.br3akPoint.util.UserContext;
-import org.springframework.beans.factory.annotation.Autowired;
+import data.dto.SaveRecipeDTO;
+import error.BusinessException;
+import event.EventRecipeRequestCreated;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import util.UserContext;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class RecipeService {
     private final RecipeRequestRepo requestRepo;
     private final RecipeRepository recipeRepository;
-
-    @Autowired
-    public RecipeService(RecipeRequestRepo requestRepo, RecipeRepository recipeRepository) {
-        this.requestRepo = requestRepo;
-        this.recipeRepository = recipeRepository;
-    }
+    private final RecipeEventPublisherService publisherService;
 
     public RecipeRequest addRecipeRequest(String content, String requestType) {
         RecipeRequest request = RecipeRequest.builder()
@@ -38,34 +36,40 @@ public class RecipeService {
 
         requestRepo.save(request);
 
+        publisherService.publishRecipeRequestCreated(EventRecipeRequestCreated.builder()
+                        .requestId(request.getId())
+                        .userId(request.getUserId())
+                        .content(request.getContent())
+                        .type(request.getType().name())
+                .build());
+
         return request;
     }
 
-    public List<RecipeRequest> getAllByUserId(Long userId, int page, int count) {
+    public List<RecipeRequest> getAllRequestsByUserId(Long userId, int page, int count) {
         Pageable pageable = PageRequest.of(page - 1, count);
         var result = requestRepo.findByUserId(userId, pageable);
         return result.getContent();
     }
 
-    public Recipe createNewRecipe(CreateRecipeRequestDTO dto) throws Exception {
+    public Recipe createNewRecipe(SaveRecipeDTO dto) throws Exception {
         RecipeRequest request = requestRepo.findById(dto.getRequestId())
                 .orElseThrow(() -> BusinessException.notFound(ServerError.Recipe_RequestId_Not_Found.getMessage()));
 
-        Recipe recipe = Recipe.builder()
-                .userId(dto.getUserId())
-                .request(request)
-                .title(dto.getTitle())
-                .description(dto.getDescription())
-                .duration(dto.getDuration())
-                .requestType(RecipeRequestType.valueOf(dto.getRequestType()))
-                .steps(dto.getSteps())
-                .instructions(dto.getInstructions())
-                .ingredients(dto.getIngredients())
-                .richTextContent(dto.getRichTextContent())
-                .build();
+        Recipe recipe = RecipeMapper.toEntity(dto, request);
 
         recipeRepository.save(recipe);
 
+        //update request status
+        request.setStatus(RecipeStatus.completed);
+        requestRepo.save(request);
+
         return recipe;
+    }
+
+    public List<Recipe> getAllByUserId(Long userId, int page, int count) {
+        Pageable pageable = PageRequest.of(page - 1, count);
+        var result = recipeRepository.findByUserId(userId, pageable);
+        return result.getContent();
     }
 }

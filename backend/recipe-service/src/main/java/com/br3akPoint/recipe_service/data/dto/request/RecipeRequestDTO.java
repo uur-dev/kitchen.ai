@@ -2,11 +2,11 @@ package com.br3akPoint.recipe_service.data.dto.request;
 
 import com.br3akPoint.recipe_service.constant.RecipeRequestType;
 import com.br3akPoint.recipe_service.constant.ValidationConstant;
-import com.br3akPoint.util.validator.ValidEnum;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.Getter;
+import util.validator.ValidEnum;
 
 @Data
 @Getter

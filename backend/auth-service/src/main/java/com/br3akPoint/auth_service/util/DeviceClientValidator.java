@@ -4,11 +4,11 @@ import com.br3akPoint.auth_service.constant.ServerErrors;
 import com.br3akPoint.auth_service.data.DeviceContext;
 import com.br3akPoint.auth_service.entity.ClientDevice;
 import com.br3akPoint.auth_service.service.ClientDeviceService;
-import com.br3akPoint.error.BusinessException;
-import com.br3akPoint.util.AesEncryptionUtil;
+import error.BusinessException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import util.AesEncryptionUtil;
 
 import java.time.Instant;
 import java.util.HashMap;
