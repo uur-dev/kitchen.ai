@@ -9,6 +9,7 @@ import com.br3akPoint.recipe_service.entity.RecipeRequest;
 import com.br3akPoint.recipe_service.repository.RecipeRepository;
 import com.br3akPoint.recipe_service.repository.RecipeRequestRepo;
 import data.dto.SaveRecipeDTO;
+import data.dto.UpdateRecipeRequestDTO;
 import error.BusinessException;
 import event.EventRecipeRequestCreated;
 import lombok.RequiredArgsConstructor;
@@ -71,5 +72,18 @@ public class RecipeService {
         Pageable pageable = PageRequest.of(page - 1, count);
         var result = recipeRepository.findByUserId(userId, pageable);
         return result.getContent();
+    }
+
+    public RecipeRequest updateRecipeRequest(UpdateRecipeRequestDTO dto) {
+        var request = requestRepo.findByIdAndUserId(dto.getRequestId(), dto.getUserId())
+                .orElseThrow(()-> BusinessException.notFound(ServerError.Recipe_RequestId_Not_Found.getMessage()));
+
+        //update status
+        request.setStatus(RecipeStatus.valueOf(dto.getStatus()));
+        request.setFailReason(dto.getReason());
+
+        requestRepo.save(request);
+
+        return request;
     }
 }
