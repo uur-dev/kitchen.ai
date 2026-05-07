@@ -86,4 +86,25 @@ public class RecipeService {
 
         return request;
     }
+
+    public void removeRecipe(Long recipeId) throws Exception {
+        var recipe = recipeRepository.findById(recipeId)
+                .orElseThrow(()-> BusinessException.notFound(ServerError.Recipe_Not_Found.getMessage()));
+        recipeRepository.delete(recipe);
+    }
+
+    public void removeRecipeRequest(Long requestId) throws Exception {
+        //check if recipe exist w.r.t this request
+        var doesRecipeExist = recipeRepository.existsByRequestId(requestId);
+
+        if(doesRecipeExist) {
+            throw BusinessException.forbidden(ServerError.Recipe_Exist_Wrt_Request_Id.getMessage());
+        }
+
+        //if not exist then directly remove
+        var request = requestRepo.findById(requestId)
+                .orElseThrow(()-> BusinessException.notFound(ServerError.Recipe_RequestId_Not_Found.getMessage()));
+
+        requestRepo.delete(request);
+    }
 }

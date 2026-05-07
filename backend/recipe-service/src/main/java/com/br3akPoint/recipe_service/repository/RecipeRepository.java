@@ -11,4 +11,5 @@ import org.springframework.stereotype.Repository;
 public interface RecipeRepository extends JpaRepository<Recipe, Long> {
 
     Page<Recipe> findByUserId(Long userId, Pageable pageable);
+    Boolean existsByRequestId(Long requestId);
 }
