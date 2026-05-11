@@ -12,15 +12,15 @@ spring:
       port: ${REDIS_PORT}
       password: ${REDIS_PASSWORD}
       ssl:
-        enabled: ${REDIS_SSL_ENABLED}
-      connect-timeout: ${REDIS_CONNECT_TIMEOUT_MS}
-      timeout: ${REDIS_COMMAND_TIMEOUT_MS}
+        enabled: false
+      connect-timeout: 5000
+      timeout: 2000
       lettuce:
         pool:
-          min-idle: ${REDIS_POOL_MIN_IDLE}
-          max-idle: ${REDIS_POOL_MAX_IDLE}
-          max-active: ${REDIS_POOL_MAX_ACTIVE}
-          max-wait: ${REDIS_POOL_MAX_WAIT_MS}
+          min-idle: 2
+          max-idle: 8
+          max-active: 16
+          max-wait: -1
 
   cloud:
     gateway:
