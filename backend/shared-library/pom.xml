@@ -33,6 +33,7 @@
         <module>common-jpa</module>
         <module>utils</module>
         <module>rabbitmq</module>
+        <module>google-firebase</module>
     </modules>
 
     <properties>
