@@ -36,3 +36,8 @@ eureka:
     fetch-registry: true
   instance:
     prefer-ip-address: true
+
+firebase:
+  service-account-json: ${FIREBASE_SERVICE_ACCOUNT_JSON}
+  storage:
+    bucket-name: ${FIREBASE_STORAGE_BUCKET}

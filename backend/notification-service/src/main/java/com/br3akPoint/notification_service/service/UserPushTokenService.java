@@ -27,8 +27,8 @@ public class UserPushTokenService {
         );
     }
 
-    public List<UserPushToken> getAllUserToken() {
-        return userPushTokenRepo.findAllByUserId(UserContext.getUserId());
+    public List<UserPushToken> getAllUserToken(Long userId) {
+        return userPushTokenRepo.findAllByUserId(userId != null ? userId : UserContext.getUserId());
     }
 
     public void updateUserFcmToken(String token) {

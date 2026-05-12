@@ -32,7 +32,7 @@ public class RecipeNotificationListener {
             //save notification in mongo
             saveNotification(notification);
             //get all fcm token for user
-            var userActiveTokens = userPushTokenService.getAllUserToken();
+            var userActiveTokens = userPushTokenService.getAllUserToken(event.getUserId());
             if(!userActiveTokens.isEmpty()) {
                 for(var eachToken : userActiveTokens) {
                     //send notification
