@@ -4,24 +4,10 @@ server:
 spring:
   application:
     name: recipe-service
-
-  rabbitmq:
-    host: ${RABBITMQ_HOST:localhost}
-    port: ${RABBITMQ_PORT:5672}
-    username: ${RABBITMQ_USER:guest}
-    password: ${RABBITMQ_PASSWORD:guest}
-    connection-timeout: 5000ms
-    publisher-confirm-type: correlated
-    publisher-returns: true
-
-    template:
-      mandatory: true
-      retry:
-        enabled: true
-        initial-interval: 1s
-        max-interval: 5s
-        multiplier: 2.0
-        max-retries: 3
+  profiles:
+    active: rabbitmq
+  config:
+    import: "optional:configserver:http://localhost:8888"
 
   datasource:
     url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${RECIPE_DB_NAME}
@@ -50,13 +36,3 @@ spring:
     locations: classpath:db/migration
     validate-on-migrate: true
     out-of-order: false
-
-# Eureka Client Configuration
-eureka:
-  client:
-    service-url:
-      defaultZone: http://localhost:8761/eureka/
-    register-with-eureka: true
-    fetch-registry: true
-  instance:
-    prefer-ip-address: true

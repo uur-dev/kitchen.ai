@@ -4,40 +4,11 @@ server:
 spring:
   application:
     name: notification-service
-
-  rabbitmq:
-    host: ${RABBITMQ_HOST:localhost}
-    port: ${RABBITMQ_PORT:5672}
-    username: ${RABBITMQ_USER}
-    password: ${RABBITMQ_PASSWORD}
-    connection-timeout: 5000ms
-
-    listener:
-      simple:
-        missing-queues-fatal: false
-        retry:
-          enabled: true
-          initial-interval: 2000ms # Wait 2s before 1st retry
-          multiplier: 2.0 # Exponential backoff (2s, 4s, 8s)
-          max-retries: 3
-        default-requeue-rejected: false # Crucial: Sends to DLQ after retries fail
-        acknowledge-mode: auto
+  profiles:
+    active: rabbitmq,firebase
+  config:
+    import: "optional:configserver:http://localhost:8888"
 
 
   mongodb:
     uri: mongodb://${MONGO_USER}:${MONGO_PASSWORD}@localhost:27017/notification-kitchen-ai?authSource=admin
-
-# Eureka Client Configuration
-eureka:
-  client:
-    service-url:
-      defaultZone: http://localhost:8761/eureka/
-    register-with-eureka: true
-    fetch-registry: true
-  instance:
-    prefer-ip-address: true
-
-firebase:
-  service-account-json: ${FIREBASE_SERVICE_ACCOUNT_JSON}
-  storage:
-    bucket-name: ${FIREBASE_STORAGE_BUCKET}
