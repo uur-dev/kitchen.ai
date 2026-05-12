@@ -1,8 +1,9 @@
 package com.br3akPoint.notification_service.listener;
 
-import com.br3akPoint.notification_service.entity.Notification;
+import com.br3akPoint.notification_service.entity.RecipePushNotification;
 import com.br3akPoint.notification_service.entity.UserPushToken;
 import com.br3akPoint.notification_service.repository.NotificationRepository;
+import com.br3akPoint.notification_service.service.PushNotificationService;
 import com.br3akPoint.notification_service.service.UserPushTokenService;
 import constant.MessageBrokerKeys;
 import constant.RecipeStatus;
@@ -20,13 +21,14 @@ public class RecipeNotificationListener {
 
     private final UserPushTokenService userPushTokenService;
     private final NotificationRepository notificationRepository;
+    private final PushNotificationService pushNotificationService;
 
     @RabbitListener(queues = MessageBrokerKeys.NOTIFICATION_QUEUE_NAME)
     public void recipeRequestProcessCompleted(EventRecipeProcessCompleted event) {
         try {
             log.info("Event Received for Notification recipeId = {}, status={}, summary={}", event.getRequestId(), event.getStatus(), event.getSummary());
 
-            Notification notification = getNotification(event);
+            RecipePushNotification notification = getNotification(event);
             //save notification in mongo
             saveNotification(notification);
             //get all fcm token for user
@@ -42,15 +44,17 @@ public class RecipeNotificationListener {
         }
     }
 
-    private void sendNotification(UserPushToken token, Notification notification) {
+    private void sendNotification(UserPushToken token, RecipePushNotification notification) {
         try {
             log.info("Notification Sent to userId={} for deviceType={} and deviceId={}", token.getUserId(), token.getDeviceType(), token.getDeviceId());
+            pushNotificationService.sendNotification(token, notification, notification.getRecipeResult());
+
         } catch (Exception ex) {
             log.error("Notification Error: userId={}, deviceType={}, deviceId={}", token.getUserId(), token.getDeviceType(), token.getDeviceType());
         }
     }
 
-    private void saveNotification(Notification notification) {
+    private void saveNotification(RecipePushNotification notification) {
         try {
             notificationRepository.save(notification);
         } catch (Exception e) {
@@ -58,9 +62,9 @@ public class RecipeNotificationListener {
         }
     }
 
-    private Notification getNotification(EventRecipeProcessCompleted event) {
+    private RecipePushNotification getNotification(EventRecipeProcessCompleted event) {
         boolean isFailed = event.getStatus().equals(RecipeStatus.failed.name());
-        return Notification.builder()
+        return RecipePushNotification.builder()
                 .userId(event.getUserId())
                 .title(isFailed ? RecipeStatus.failed.getNotificationTitle() : RecipeStatus.completed.getNotificationTitle())
                 .recipeResult(RecipeResult.fromMap(event.getResult()))
