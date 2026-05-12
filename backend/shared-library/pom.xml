@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!--
+        PARENT: Spring Boot Starter Parent
+        - Provides default dependency versions (no need to specify versions manually)
+        - Provides default plugin configurations
+        - Acts as a bill of materials (BOM) for all Spring Boot dependencies
+    -->
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>4.0.5</version>
+        <relativePath/> <!-- Looks up parent from Maven central, not local file system -->
+    </parent>
+
+    <!--
+        PROJECT IDENTITY
+        - groupId:    Your organization/company namespace (reverse domain style)
+        - artifactId: The unique name of this module/library
+        - version:    SNAPSHOT means it's still in development (not a stable release)
+    -->
+    <groupId>com.br3akPoint</groupId>
+    <artifactId>shared-library</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <modules>
+        <module>security</module>
+        <module>common</module>
+        <module>redis</module>
+        <module>common-jpa</module>
+        <module>utils</module>
+        <module>rabbitmq</module>
+        <module>google-firebase</module>
+    </modules>
+
+    <properties>
+        <!-- Sets the Java version used to compile this project -->
+        <java.version>17</java.version>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+            </plugin>
+
+        </plugins>
+    </build>
+
+</project>

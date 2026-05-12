@@ -1,0 +1,42 @@
+docs/*
+
+# ─── Environment Variables ────────────────────────────────────────────────────
+**/.env
+**/.env.*
+
+# ─── IDE - IntelliJ IDEA ──────────────────────────────────────────────────────
+backend/**/.idea/
+backend/**/.idea/encodings.xml
+backend/**/.idea/misc.xml
+backend/**/*.iws
+backend/**/*.iml
+backend/**/*.ipr
+
+# ─── Compiled Output ──────────────────────────────────────────────────────────
+*.class
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+
+# ─── Maven ────────────────────────────────────────────────────────────────────
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+
+# ─── Gradle ───────────────────────────────────────────────────────────────────
+.gradle/
+build/
+
+# ─── Spring Boot ──────────────────────────────────────────────────────────────
+*.log
+logs/
+spring-pid
+
+# ─── OS ───────────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db

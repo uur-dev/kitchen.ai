@@ -1,0 +1,51 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+
+  # redis configs
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      password: ${REDIS_PASSWORD}
+      ssl:
+        enabled: false
+      connect-timeout: 5000
+      timeout: 2000
+      lettuce:
+        pool:
+          min-idle: 2
+          max-idle: 8
+          max-active: 16
+          max-wait: -1
+
+  cloud:
+    gateway:
+      server:
+        webmvc:
+          http-client:
+            type: jdk
+
+# Eureka Client Configuration
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+
+logging:
+  level:
+    org.flywaydb: DEBUG
+    io.lettuce.core: DEBUG
+    org.springframework.data.redis: DEBUG
+
+jwt:
+  secret: ${JWT_SECRET}
+  access-token-expiry-ms: 300000
+  refresh-token-expiry-ms: 2592000000

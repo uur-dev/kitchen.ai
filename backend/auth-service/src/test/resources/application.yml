@@ -1,0 +1,92 @@
+server:
+  port: 0
+
+spring:
+  application:
+    name: auth-service
+
+  #redis configs
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD}
+      ssl:
+        enabled: false
+      connect-timeout: 5000
+      timeout: 2000
+      lettuce:
+        pool:
+          min-idle: 2
+          max-idle: 8
+          max-active: 16
+          max-wait: -1ms
+
+  datasource:
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${AUTH_DB_NAME}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+        default_schema: public
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    validate-on-migrate: true
+    out-of-order: false
+
+logging:
+  level:
+    org.flywaydb: DEBUG
+
+# Eureka Client Configuration
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+
+app:
+  platforms:
+    android:
+      app-id: ${ANDROID_APP_ID}
+      secret: ${ANDROID_APP_SECRET}
+
+    ios:
+      app-id: ${IOS_APP_ID}
+      secret: ${IOS_APP_SECRET}
+
+    web:
+      app-id: ${WEB_APP_ID}
+      secret: ${WEB_APP_SECRET}
+
+    desktop:
+      app-id: ${DESKTOP_APP_ID}
+      secret: ${DESKTOP_APP_SECRET}
+
+    macOS:
+      app-id: ${MACOS_APP_ID}
+      secret: ${MACOS_APP_SECRET}
+
+jwt:
+  secret: ${JWT_SECRET}
+  access-token-expiry-ms: 300000
+  refresh-token-expiry-ms: 2592000000
