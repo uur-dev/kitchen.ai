@@ -24,35 +24,39 @@ public class RecipeProcessingTracker {
     // --- Static Factory Methods ---
 
     public static RecipeProcessingTracker fromException(Exception ex, EventRecipeRequestCreated event, Long tagId) {
-        RecipeProcessingTracker tracker = createBaseTracker(event, tagId);
-        tracker.setException(ex.getMessage());
-        tracker.setStatus("FAILED");
-        return tracker;
+        return createBaseTracker(event, tagId, null, ex.getMessage());
     }
 
     public static RecipeProcessingTracker fromError(String error, EventRecipeRequestCreated event, Long tagId, SaveRecipeDTO saveRecipeDTO) {
-        RecipeProcessingTracker tracker = createBaseTracker(event, tagId);
-        tracker.setError(error);
-        tracker.setStatus("FAILED");
+        RecipeProcessingTracker tracker = createBaseTracker(event, tagId, error, null);
         tracker.setSaveRecipeDTO(saveRecipeDTO);
         return tracker;
     }
 
     public static RecipeProcessingTracker success(EventRecipeRequestCreated event, Long tagId) {
-        RecipeProcessingTracker tracker = createBaseTracker(event, tagId);
+        RecipeProcessingTracker tracker = createBaseTracker(event, tagId, null, null);
         tracker.setStatus("SUCCESS");
         return tracker;
     }
 
     // --- Private Helper to avoid duplication ---
 
-    private static RecipeProcessingTracker createBaseTracker(EventRecipeRequestCreated event, Long tagId) {
-        return RecipeProcessingTracker.builder()
+    private static RecipeProcessingTracker createBaseTracker(EventRecipeRequestCreated event, Long tagId, String error, String exception) {
+        var tracker = RecipeProcessingTracker.builder()
                 .requestId(event.getRequestId())
                 .userId(event.getUserId())
                 .type(event.getType())
                 .content(event.getContent())
-                .tagId(tagId.toString())
-                .build();
+                .tagId(tagId.toString());
+
+        if(error != null && !error.isBlank()) {
+            tracker.error(error);
+            tracker.status("FAILED");
+        } else if(exception != null && !exception.isBlank()) {
+            tracker.exception(exception);
+            tracker.status("FAILED");
+        }
+
+        return tracker.build();
     }
 }

@@ -42,6 +42,7 @@ public class UserPushTokenService {
                     .deviceType(UserContext.getDeviceType())
                     .createdAt(Instant.now())
                     .updatedAt(Instant.now())
+                    .isValid(true)
                     .build();
             userPushTokenRepo.save(newToken);
         } else {

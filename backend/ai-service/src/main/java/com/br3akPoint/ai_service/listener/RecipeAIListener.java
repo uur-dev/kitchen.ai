@@ -6,10 +6,12 @@ import com.br3akPoint.ai_service.service.RecipeAIService;
 import com.br3akPoint.ai_service.service.RecipeTrackerService;
 import com.br3akPoint.ai_service.util.UrlMultipartFile;
 import constant.MessageBrokerKeys;
+import constant.RecipeStatus;
 import data.dto.SaveRecipeDTO;
 import data.dto.UpdateRecipeRequestDTO;
 import event.EventRecipeProcessCompleted;
 import event.EventRecipeRequestCreated;
+import data.dto.RecipeResult;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -27,8 +29,6 @@ import java.util.Map;
 @AllArgsConstructor
 public class RecipeAIListener {
 
-    private static final String STATUS_FAILED    = "failed";
-    private static final String STATUS_COMPLETED = "completed";
     private static final String MSG_FAILED       = "An error has occurred while processing your recipe.";
     private static final String MSG_COMPLETED    = "Your Recipe is ready and complete.";
 
@@ -108,7 +108,7 @@ public class RecipeAIListener {
 
         if (recipeServiceResponse.getStatus()) {
             log.info("Successfully saved recipe: {}", dto.getTitle());
-            trackSuccess(event, tag);
+            trackSuccess(event, tag, dto);
         } else {
             String error = "error_key:recipe-internal-service-failed";
             log.error("Error saving recipe: {}", error);
@@ -116,7 +116,7 @@ public class RecipeAIListener {
         }
     }
 
-    private void triggerNotificationEvent(Long userId, Long requestId, String status, String summary) {
+    private void triggerNotificationEvent(Long userId, Long requestId, String status, String summary, Map<String, Object> result) {
         try {
             rabbitTemplate.convertAndSend(
                     MessageBrokerKeys.NOTIFICATION_EXCHANGE_NAME,
@@ -126,6 +126,7 @@ public class RecipeAIListener {
                             .requestId(requestId)
                             .status(status)
                             .summary(summary)
+                            .result(result)
                             .build());
         } catch (Exception e) {
             log.error("Exception while triggering notification event: {}", e.getMessage());
@@ -156,17 +157,17 @@ public class RecipeAIListener {
     private void trackError(String error, EventRecipeRequestCreated event, Long tag, SaveRecipeDTO dto) {
         updateRecipeFailStatus(event, error);
         trackerService.trackError(error, event, tag, dto);
-        triggerNotificationEvent(event.getUserId(), event.getRequestId(), STATUS_FAILED, MSG_FAILED);
+        triggerNotificationEvent(event.getUserId(), event.getRequestId(), RecipeStatus.failed.name(), MSG_FAILED, Map.of("error", error));
     }
 
     private void trackException(Exception exception, EventRecipeRequestCreated event, Long tag) {
         updateRecipeFailStatus(event, MSG_FAILED);
         trackerService.trackException(exception, event, tag);
-        triggerNotificationEvent(event.getUserId(), event.getRequestId(), STATUS_FAILED, MSG_FAILED);
+        triggerNotificationEvent(event.getUserId(), event.getRequestId(), RecipeStatus.failed.name(), MSG_FAILED, Map.of("exception", exception.getMessage()));
     }
 
-    private void trackSuccess(EventRecipeRequestCreated event, Long tag) {
+    private void trackSuccess(EventRecipeRequestCreated event, Long tag, SaveRecipeDTO dto) {
         trackerService.trackSuccess(event, tag);
-        triggerNotificationEvent(event.getUserId(), event.getRequestId(), STATUS_COMPLETED, MSG_COMPLETED);
+        triggerNotificationEvent(event.getUserId(), event.getRequestId(), RecipeStatus.completed.name(), MSG_COMPLETED, dto.toMap());
     }
 }

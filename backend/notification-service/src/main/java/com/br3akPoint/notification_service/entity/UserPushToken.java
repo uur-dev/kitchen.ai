@@ -16,5 +16,5 @@ public class UserPushToken {
     private String deviceId;
     private Instant createdAt;
     private Instant updatedAt;
-    private Boolean isValid = true;
+    private Boolean isValid;
 }

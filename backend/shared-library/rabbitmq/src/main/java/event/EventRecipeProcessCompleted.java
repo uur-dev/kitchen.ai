@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Map;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -14,4 +16,6 @@ public class EventRecipeProcessCompleted {
     private Long requestId;
     private String status;
     private String summary;
+    private Map<String, Object> result;
 }
+
