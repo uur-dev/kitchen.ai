@@ -60,7 +60,14 @@ public class AuthService {
             var refreshTokenExpiry = jwtUtil.getRefreshTokenExpiry();
 
             //create new auth session
-            AuthSession session = AuthSession.builder().user(user).refreshToken(refreshToken).expiry(refreshTokenExpiry.toInstant()).deviceId(deviceContext.getDeviceId()).deviceType(DeviceTypeEnum.valueOf(deviceContext.getDeviceType())).build();
+            AuthSession session = AuthSession.builder()
+                    .user(user)
+                    .refreshToken(refreshToken)
+                    .expiry(refreshTokenExpiry.toInstant())
+                    .deviceId(deviceContext.getDeviceId())
+                    .deviceType(DeviceTypeEnum.valueOf(deviceContext.getDeviceType()))
+                    .enabled(true)
+                    .build();
 
             //save
             authSessionRepository.save(session);

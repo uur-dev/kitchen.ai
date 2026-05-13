@@ -1,0 +1,3 @@
+[submodule "backend/configs"]
+	path = backend/configs
+	url = https://github.com/uur-dev/kitchen-ai-config

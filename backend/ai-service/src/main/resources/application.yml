@@ -7,7 +7,7 @@ spring:
   profiles:
     active: rabbitmq
   config:
-    import: "optional:configserver:http://localhost:8888"
+    import: "optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888}"
 
   ai:
     google:
@@ -28,4 +28,4 @@ spring:
             max-output-tokens: 2048
 
   mongodb:
-    uri: mongodb://${MONGO_USER}:${MONGO_PASSWORD}@localhost:27017/ai-kitechen-ai?authSource=admin
+    uri: mongodb://${MONGO_USER}:${MONGO_PASSWORD}@${MONGO_HOST}:${MONGO_PORT}/ai-kitechen-ai?authSource=admin

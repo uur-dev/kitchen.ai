@@ -7,8 +7,8 @@ spring:
   profiles:
     active: rabbitmq,firebase
   config:
-    import: "optional:configserver:http://localhost:8888"
+    import: "optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888}"
 
 
   mongodb:
-    uri: mongodb://${MONGO_USER}:${MONGO_PASSWORD}@localhost:27017/notification-kitchen-ai?authSource=admin
+    uri: mongodb://${MONGO_USER}:${MONGO_PASSWORD}@${MONGO_HOST}:${MONGO_PORT}/notification-kitchen-ai?authSource=admin
