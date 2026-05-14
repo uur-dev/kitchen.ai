@@ -17,7 +17,14 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@SpringBootTest
+@SpringBootTest(
+		properties = {
+				"spring.cloud.config.enabled=false",
+				"spring.cloud.discovery.enabled=false",
+				"spring.data.redis.repositories.enabled=false",
+				"spring.flyway.enabled=false"
+		}
+)
 class AuthServiceApplicationTests {
 
 	@Autowired

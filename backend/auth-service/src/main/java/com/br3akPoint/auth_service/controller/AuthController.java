@@ -41,12 +41,4 @@ public class AuthController {
         var newToken = authService.refreshAuthToken(refreshToken, deviceContext);
         return ResponseEntity.ok(ApiResponse.responseData(newToken));
     }
-
-    /*@GetMapping("/test-redis")
-    public String testRedis(@RequestParam("jti") String jti) {
-        String key = "blacklist:token:" + jti;
-        // store
-        redisService.setString(key, "true", Duration.ofSeconds(900));
-        return "added:" + key;
-    }*/
 }
