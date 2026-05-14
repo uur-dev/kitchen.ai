@@ -26,12 +26,13 @@ public class RoutingConfig {
     ) {
         return GatewayRouterFunctions.route(routeId)
                 .route(
-                        RequestPredicates.path(gatewayPath + "/**"),
+                        RequestPredicates.path(gatewayPath + "/**")
+                                .or(RequestPredicates.path(gatewayPath)),
                         HandlerFunctions.http()
                 )
                 .before(BeforeFilterFunctions.rewritePath(
-                        gatewayPath + "/(?<segment>.*)",
-                        replacement + "/${segment}"
+                        gatewayPath + "(?<segment>/.*)?",
+                        replacement + "${segment}"
                 ))
                 // --- HEADER FORWARDING LOGIC START ---
                 .before(request -> {
@@ -93,6 +94,16 @@ public class RoutingConfig {
                 "/v1/api/storage",
                 "/storage",
                 "STORAGE-SERVICE"
+        );
+    }
+
+    @Bean
+    public RouterFunction<ServerResponse> notificationServiceRoute() {
+        return buildRoute(
+                "notification-service",
+                "/v1/api/user/fcm",
+                "/notification/fcm",
+                "NOTIFICATION-SERVICE"
         );
     }
 }

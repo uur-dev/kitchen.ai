@@ -44,4 +44,16 @@ public class RecipeController {
         var list = recipeService.getAllByUserId(UserContext.getUserId(), page, count);
         return ResponseEntity.ok(ApiResponse.responseData(list));
     }
+
+    @DeleteMapping("/remove/{recipeId}")
+    public ResponseEntity<ApiResponse<?>> removeRecipe(@PathVariable Long recipeId) throws Exception {
+        recipeService.removeRecipe(recipeId);
+        return ResponseEntity.ok(ApiResponse.statusOk());
+    }
+
+    @DeleteMapping("/request/remove/{requestId}")
+    public ResponseEntity<ApiResponse<?>> removeRecipeRequest(@PathVariable Long requestId) throws Exception {
+        recipeService.removeRecipeRequest(requestId);
+        return ResponseEntity.ok(ApiResponse.statusOk());
+    }
 }

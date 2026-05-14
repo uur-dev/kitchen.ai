@@ -1,6 +1,6 @@
 package com.br3akPoint.recipe_service.service;
 
-import constant.RecipeMessageBrokerKeys;
+import constant.MessageBrokerKeys;
 import event.EventRecipeRequestCreated;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,8 +22,8 @@ public class RecipeEventPublisherService {
             );
 
             rabbitTemplate.convertAndSend(
-                    RecipeMessageBrokerKeys.RECIPE_EXCHANGE_NAME,
-                    RecipeMessageBrokerKeys.RECIPE_ROUTING_KEY,
+                    MessageBrokerKeys.RECIPE_EXCHANGE_NAME,
+                    MessageBrokerKeys.RECIPE_ROUTING_KEY,
                     event,
                     correlationData
             );

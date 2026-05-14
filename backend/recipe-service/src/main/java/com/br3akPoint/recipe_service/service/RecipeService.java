@@ -9,6 +9,7 @@ import com.br3akPoint.recipe_service.entity.RecipeRequest;
 import com.br3akPoint.recipe_service.repository.RecipeRepository;
 import com.br3akPoint.recipe_service.repository.RecipeRequestRepo;
 import data.dto.SaveRecipeDTO;
+import data.dto.UpdateRecipeRequestDTO;
 import error.BusinessException;
 import event.EventRecipeRequestCreated;
 import lombok.RequiredArgsConstructor;
@@ -71,5 +72,39 @@ public class RecipeService {
         Pageable pageable = PageRequest.of(page - 1, count);
         var result = recipeRepository.findByUserId(userId, pageable);
         return result.getContent();
+    }
+
+    public RecipeRequest updateRecipeRequest(UpdateRecipeRequestDTO dto) {
+        var request = requestRepo.findByIdAndUserId(dto.getRequestId(), dto.getUserId())
+                .orElseThrow(()-> BusinessException.notFound(ServerError.Recipe_RequestId_Not_Found.getMessage()));
+
+        //update status
+        request.setStatus(RecipeStatus.valueOf(dto.getStatus()));
+        request.setFailReason(dto.getReason());
+
+        requestRepo.save(request);
+
+        return request;
+    }
+
+    public void removeRecipe(Long recipeId) throws Exception {
+        var recipe = recipeRepository.findById(recipeId)
+                .orElseThrow(()-> BusinessException.notFound(ServerError.Recipe_Not_Found.getMessage()));
+        recipeRepository.delete(recipe);
+    }
+
+    public void removeRecipeRequest(Long requestId) throws Exception {
+        //check if recipe exist w.r.t this request
+        var doesRecipeExist = recipeRepository.existsByRequestId(requestId);
+
+        if(doesRecipeExist) {
+            throw BusinessException.forbidden(ServerError.Recipe_Exist_Wrt_Request_Id.getMessage());
+        }
+
+        //if not exist then directly remove
+        var request = requestRepo.findById(requestId)
+                .orElseThrow(()-> BusinessException.notFound(ServerError.Recipe_RequestId_Not_Found.getMessage()));
+
+        requestRepo.delete(request);
     }
 }

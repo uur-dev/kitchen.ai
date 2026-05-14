@@ -4,20 +4,18 @@ server:
 spring:
   application:
     name: ai-service
+  profiles:
+    active: rabbitmq
+  config:
+    import: "optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888}"
 
   ai:
     google:
       genai:
-        # ----------------------------------------------------------------
-        # Set your Gemini API key here or via environment variable:
-        #   SPRING_AI_GOOGLE_GENAI_API_KEY=your-key
-        # ----------------------------------------------------------------
         api-key: ${GEMINI_API_KEY}
 
         chat:
           options:
-            # gemini-2.0-flash is fast and cost-effective; swap for
-            # gemini-1.5-pro if you need longer context/better quality
             model: gemini-2.5-flash-lite
 
             # Low temperature = more consistent / valid JSON output
@@ -29,34 +27,5 @@ spring:
             # Max output tokens (increase for very complex recipes)
             max-output-tokens: 2048
 
-  rabbitmq:
-    host: ${RABBITMQ_HOST:localhost}
-    port: ${RABBITMQ_PORT:5672}
-    username: ${RABBITMQ_USER:guest}
-    password: ${RABBITMQ_PASSWORD:guest}
-    connection-timeout: 5000ms
-
-    listener:
-      simple:
-        missing-queues-fatal: false
-        retry:
-          enabled: true
-          initial-interval: 2000ms # Wait 2s before 1st retry
-          multiplier: 2.0 # Exponential backoff (2s, 4s, 8s)
-          max-retries: 3
-        default-requeue-rejected: false # Crucial: Sends to DLQ after retries fail
-        acknowledge-mode: auto
-
-
   mongodb:
-    uri: mongodb://${MONGO_USER}:${MONGO_PASSWORD}@localhost:27017/ai-kitechen-ai?authSource=admin
-
-# Eureka Client Configuration
-eureka:
-  client:
-    service-url:
-      defaultZone: http://localhost:8761/eureka/
-    register-with-eureka: true
-    fetch-registry: true
-  instance:
-    prefer-ip-address: true
+    uri: mongodb://${MONGO_USER}:${MONGO_PASSWORD}@${MONGO_HOST}:${MONGO_PORT}/ai-kitechen-ai?authSource=admin

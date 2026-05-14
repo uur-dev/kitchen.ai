@@ -35,22 +35,22 @@ The entire platform spins up with a **single Docker Compose command** and is des
 
 | Feature | Detail |
 |---|---|
-| 🎙️ **Multimodal Input** | Text prompts, audio transcription and image ingredient detection via Gemini AI |
-| 🌍 **Cuisine Selection** | Filterable cuisine list: Pakistani, Chinese, Italian, Mexican, Japanese and more |
-| 🤖 **Gemini Multimodal AI** | Single-call image+text recipe generation — no separate Vision API needed |
-| ⚡ **Async Event Pipeline** | Full CQRS + Saga pattern over RabbitMQ for non-blocking recipe processing |
-| 🔔 **Real-Time Notifications** | Push (FCM/APNs) and email notifications when recipe generation completes |
-| 📱 **Native Mobile Clients** | Swift (iOS) and Kotlin (Android) apps in the same monorepo |
-| 🔐 **Secure Auth** | JWT + OAuth 2.0 (Google Sign-In, Apple Sign-In) |
-| 🐳 **One-Command Deployment** | `docker compose up` brings the entire stack online — no manual config |
-| 📈 **Horizontal Scaling** | Each service scales independently via `docker compose up --scale` |
+|  **Multimodal Input** | Text prompts, audio transcription and image ingredient detection via Gemini AI |
+|  **Cuisine Selection** | Filterable cuisine list: Pakistani, Chinese, Italian, Mexican, Japanese and more |
+|  **Gemini Multimodal AI** | Single-call image+text recipe generation — no separate Vision API needed |
+|  **Async Event Pipeline** | Full CQRS + Saga pattern over RabbitMQ for non-blocking recipe processing |
+|  **Real-Time Notifications** | Push (FCM/APNs) and email notifications when recipe generation completes |
+|  **Native Mobile Clients** | React Native app for Android & iOS in same monorepo |
+|  **Secure Auth** | JWT + OAuth 2.0 (Google Sign-In, Apple Sign-In) |
+|  **One-Command Deployment** | `docker compose up` brings the entire stack online — no manual config |
+|  **Horizontal Scaling** | Each service scales independently via `docker compose up --scale` |
 
 ---
 
 ## Architecture Summary
 
 ```
-Mobile App (iOS / Android)
+Mobile App [React Native] (iOS / Android)
         │
         ▼
   [ API Gateway ]  ◄──── JWT / OAuth Validation via Auth Service
@@ -60,12 +60,12 @@ Mobile App (iOS / Android)
  [ Auth Service ]                           [ Recipe Service ]
   PostgreSQL DB                              PostgreSQL DB
                                                     │
-                                          Publishes: recipe.created
+                                          Publishes: recipe.request.created
                                                     │
                                                     ▼
                                            [ RabbitMQ Bus ]
                                                     │
-                                          Consumes: recipe.created
+                                          Consumes: recipe.request.created
                                                     │
                                                     ▼
                                            [ AI Service ]
@@ -73,13 +73,13 @@ Mobile App (iOS / Android)
                                                     │
                                      Calls Gemini API (text + image — single multimodal call)
                                                     │
-                                       Publishes: recipe.completed
+                                       Process: recipe request
                                                     │
                               ┌─────────────────────┤
                               ▼                     ▼
                     [ Recipe Service ]    [ Notification Service ]
                     Updates status:        MongoDB DB
-                     COMPLETED             Sends: Push + Email
+                     COMPLETED             Sends: Push
 ```
 
 > For the full visual architecture diagram see [`/docs/architecture.png`](./docs/architecture.png) or view the interactive diagram in the project wiki.
@@ -147,12 +147,10 @@ Manages the complete identity lifecycle:
 
 - **User Registration & Login** — Email/password with BCrypt hashing
 - **JWT Issuance** — Short-lived access tokens (15 min) + long-lived refresh tokens (7 days)
-- **Google Sign-In** — OAuth2 authorization code flow via Google Identity Services
-- **Apple Sign-In** — Sign In with Apple (SIWA) using Apple's identity token
 - **Token Refresh** — Secure rotation of refresh tokens stored in Redis
 - **Session Invalidation** — Logout and token blacklisting via Redis TTL
 
-**Port:** `8081`  
+**Port:** `0 - random`  
 **Database:** PostgreSQL (users, sessions, oauth_accounts)  
 **Cache:** Redis (token blacklist, refresh token store)
 
@@ -165,15 +163,15 @@ Manages the complete identity lifecycle:
 
 The core domain service:
 
-- **Recipe Submission** — Accepts multimodal input payloads (text, audio transcript, image URL)
+- **Recipe Request Submission** — Accepts multimodal input payloads (text, audio transcript, image URL)
 - **Cuisine Catalogue API** — Returns the list of supported cuisines for the mobile dropdowns
-- **Status Lifecycle** — Manages recipe state machine: `PENDING → PROCESSING → COMPLETED / FAILED`
+- **Status Lifecycle** — Manages recipe state machine: `PROCESSING → COMPLETED / FAILED`
 - **Redis Cache** — Caches completed recipes and cuisine list to reduce DB read load
-- **Event Publisher** — Publishes `recipe.created` event to RabbitMQ after persisting the request
-- **Event Consumer** — Listens for `recipe.completed` event from AI Service; updates recipe record and marks status as `COMPLETED`
+- **Event Publisher** — Publishes `recipe.request.created` event to RabbitMQ after persisting the request
+- **Interal Private API** — API to update recipe status `COMPLETED` called from AI Service, when processed.
 - **Recipe History** — User-scoped recipe history with pagination
 
-**Port:** `8082`  
+**Port:** `0 (random)`  
 **Database:** PostgreSQL (recipes, cuisines, recipe_steps)  
 **Cache:** Redis (recipe cache, cuisine list cache)
 
@@ -182,19 +180,19 @@ The core domain service:
 ### 4. AI Service
 
 **Path:** `backend/ai-service/`  
-**Technology:** Spring Boot, MongoDB, Google Gemini API (Gemini 1.5 Pro / 2.0 Flash)
+**Technology:** Spring Boot, MongoDB, Google Gemini API (Gemini 2.5 Flash-Lite)
 
 The intelligence layer — fully event-driven, no synchronous HTTP exposure:
 
-- **Event Consumer** — Subscribes to `recipe.created` queue from RabbitMQ
+- **Event Consumer** — Subscribes to `recipe.request.created` queue from RabbitMQ
 - **Prompt Engineering** — Constructs structured Gemini prompts embedding cuisine context, available ingredients, dietary notes, and a strict JSON output schema
-- **Gemini Integration** — Calls Gemini 1.5 Pro / 2.0 Flash API; handles streaming response, retry with exponential backoff, and token budget management
+- **Gemini Integration** — Calls Gemini 2.5 Flash-Lite, handles streaming response, retry with exponential backoff, and token budget management
 - **Response Parsing** — Extracts structured recipe: title, description, total duration, difficulty, ingredient list, ordered steps
-- **Event Publisher** — Publishes `recipe.completed` event with the structured recipe payload
+- **Save Processed Recipe** — Call interal (not public) API of recipe-service to save compelted recipe with the structured recipe payload
 - **Audit Logging** — Persists all AI requests/responses in MongoDB for debugging and fine-tuning data collection
 - **Image Understanding** — When a photo is submitted, the image is passed directly to Gemini as a multimodal payload (no separate Vision API call). Gemini identifies visible ingredients and reasons about quantities in a **single API call**, then returns a structured recipe. This eliminates the latency and cost of a two-step Vision → LLM pipeline.
 
-**Port:** `8083` (internal only — not exposed via API Gateway)  
+**Port:** `0 (random)` (internal only — not exposed via API Gateway)  
 **Database:** MongoDB (ai_requests, ai_responses, prompt_templates)
 
 ---
@@ -202,18 +200,17 @@ The intelligence layer — fully event-driven, no synchronous HTTP exposure:
 ### 5. Notification Service
 
 **Path:** `backend/notification-service/`  
-**Technology:** Spring Boot, MongoDB, Firebase Push Notification, JavaMail
+**Technology:** Spring Boot, MongoDB, Firebase Push Notification
 
 Handles all outbound user communications:
 
-- **Event Consumer** — Subscribes to `recipe.completed` and `recipe.failed` events from RabbitMQ
-- **Push Notifications** — Sends FCM notifications (Android) and APNs notifications (iOS) with recipe title and deep-link payload
-- **Email Notifications** — Sends formatted HTML recipe emails via SMTP (configurable: SendGrid, SES, or self-hosted)
-- **User Preferences** — Respects per-user notification preferences (push enabled, email enabled, quiet hours)
+- **Event Consumer** — Subscribes to `notification.recipe.processed` events from RabbitMQ
+- **Push Notifications** — Sends FCM notifications (Android or iOS) with recipe title and basic details in JSON payload
+- **User Preferences** — Respects per-user notification preferences (push enabled)
 - **Delivery Tracking** — Persists notification delivery status in MongoDB
 - **Retry Logic** — Dead-letter queue handling for failed notification deliveries
 
-**Port:** `8084` (internal only — not exposed via API Gateway)  
+**Port:** `0 (random)` (internal only — not exposed via API Gateway)  
 **Database:** MongoDB (notifications, delivery_logs, user_preferences)
 
 ---
@@ -227,35 +224,52 @@ kitchen.ai implements the **Saga Choreography pattern** — no central orchestra
 ```
 1.  User submits recipe request via mobile app
 2.  API Gateway validates JWT, routes to Recipe Service
-3.  Recipe Service persists record (status: PENDING)
-4.  Recipe Service publishes → [recipe.created] → RabbitMQ Exchange
-5.  AI Service consumes [recipe.created]
-6.  AI Service updates record internally (status: PROCESSING)
+3.  Recipe Service persists record (status: PROCESSING)
+4.  Recipe Service publishes → [recipe.request.created] → RabbitMQ Exchange
+5.  AI Service consumes [recipe.request.created]
+6.  AI Service process record internally (status: PROCESSING)
 7.  AI Service calls Gemini API (sync HTTP to external)
-8.  AI Service publishes → [recipe.completed] → RabbitMQ Exchange
-9.  Recipe Service consumes [recipe.completed] → updates status: COMPLETED
-10. Notification Service consumes [recipe.completed] → sends push + email
-11. Mobile app receives push notification with deep-link to completed recipe
+8.  AI Service call interal API to update processed recipe → [recipe-service] → updates status: COMPLETED
+10. Notification Service consumes [notification.recipe.processed] → sends push
+11. Mobile app receives push notification with json payload for completed recipe
 ```
 
 ### Failure Handling
 
 ```
 IF Gemini API fails after max retries:
-  AI Service publishes → [recipe.failed] → RabbitMQ Exchange
-  Recipe Service consumes [recipe.failed] → updates status: FAILED
-  Notification Service consumes [recipe.failed] → sends failure notification
+  AI Service store error in mongo-db for tracking
+  Recipe recived API call to update reason → updates status: FAILED
+  Notification Service consumes [notification.recipe.processed] → sends failure notification
   Dead-letter queue captures the original message for replay
 ```
 
 ### RabbitMQ Topology
 
-| Exchange | Type | Routing Key | Consumer |
-|---|---|---|---|
-| `recipe.exchange` | Topic | `recipe.created` | AI Service |
-| `recipe.exchange` | Topic | `recipe.completed` | Recipe Service, Notification Service |
-| `recipe.exchange` | Topic | `recipe.failed` | Recipe Service, Notification Service |
-| `recipe.dlx` | Direct | `recipe.dead` | Ops / Manual Replay |
+
+| Exchange | Type | Routing Key | Queue / Consumer |
+|:---|:---|:---|:---|
+| `recipe.exchange` | Topic | `recipe.request.created` | `recipe.ai.queue` (AI Service) |
+| `notification.exchange` | Topic | `notification.recipe.processed` | `notification.queue` (Notification Service) |
+| `recipe.dlx.exchange` | Direct | `recipe.failed` | `recipe.dlx.queue` (Ops / Manual Replay) |
+| `notification.dlx.exchange` | Direct | `notification.process.failed` | `notification.dlx.queue` (Ops / Manual Replay) |
+
+---
+
+### Logic Summary
+
+*   **Primary Flow:** The AI Service listens specifically for `recipe.request.created`.
+*   **Decoupling:** moved notifications to their own exchange (`notification.exchange`), which is a cleaner separation of concerns than the previous "all-in-one" topic exchange.
+*   **Granular Error Handling:** have two distinct Dead Letter Queues (DLQs). This allows you to differentiate between a failure in **generating** a recipe versus a failure in **notifying** the user.
+
+### Routing Key Mappings
+
+| Constant | Value |
+|:---|:---|
+| `RECIPE_ROUTING_KEY` | `recipe.request.created` |
+| `RECIPE_DLX_ROUTING_KEY` | `recipe.failed` |
+| `NOTIFICATION_ROUTING_KEY` | `notification.recipe.processed` |
+| `NOTIFICATION_DLX_ROUTING_KEY` | `notification.process.failed` |
 
 ---
 
@@ -273,29 +287,26 @@ IF Gemini API fails after max retries:
 
 ## Mobile Apps
 
-Both apps are native, sharing no cross-platform runtime:
+The mobile presence is unified under a single cross-platform codebase, ensuring feature parity and faster development cycles:
 
-### iOS — `mobile_app/iOS/`
+### Cross-Platform — `mobile_app/`
 
-- **Language:** Swift 5.9+
-- **UI Framework:** SwiftUI
-- **Architecture:** MVVM + Combine
-- **Auth:** Sign In with Apple, Google Sign-In SDK
-- **Networking:** URLSession with async/await
-- **Push:** APNs via Firebase Cloud Messaging
-- **Media Input:** AVFoundation (audio capture), PhotosUI (image picker), CoreML (on-device preprocessing)
-
-### Android — `mobile_app/Android/`
-
-- **Language:** Kotlin
-- **UI Framework:** Jetpack Compose
-- **Architecture:** MVVM + StateFlow + Hilt DI
-- **Auth:** Google Sign-In, Custom JWT login
-- **Networking:** Retrofit + OkHttp
-- **Push:** Firebase Cloud Messaging (FCM)
-- **Media Input:** CameraX, SpeechRecognizer, MediaRecorder
-
+- **Framework:** React Native (Latest Architecture)
+- **Language:** TypeScript
+- **UI Framework:** React Native / Tailwind CSS (NativeWind)
+- **Architecture:** Redux Toolkit
+- **Networking:** Axios with Interceptors for JWT management
+- **Push Notifications:** React Native Firebase (FCM for Android or iOS)
+- **Media Input:** 
+    - **Camera/Images:** React Native Vision Camera & Image Picker
+    - **Audio:** React Native Audio Recorder Player
+    - **Processing:** Custom Native Modules for high-performance media tasks
 ---
+
+### Key Technical Benefits
+*   **Code Sharing:** Over 90% shared logic between iOS and Android.
+*   **Hot Reloading:** Faster UI iteration and debugging.
+*   **Native Modules:** Direct access to iOS (Swift) and Android (Kotlin) APIs for specialized tasks like heavy audio/image processing.
 
 ## Getting Started
 
@@ -308,13 +319,13 @@ Both apps are native, sharing no cross-platform runtime:
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/your-org/kitchen-ai.git
+git clone https://github.com/uur-dev/kitchen.ai/kitchen-ai.git
 cd kitchen.ai
 
 # 2. Copy environment template
 cp infrastructure/.env.example infrastructure/.env
 
-# 3. Add your Gemini API key to .env
+# 3. Add your Gemini API key or others configuration to .env
 #    GEMINI_API_KEY=your_key_here
 
 # 4. Start the entire platform
@@ -323,24 +334,6 @@ docker compose -f infrastructure/docker-compose.yml up --build
 
 That's it. All services, databases, RabbitMQ, and Redis will be running.
 
-### Service Endpoints (after startup)
-
-| Service | URL |
-|---|---|
-| API Gateway | http://localhost:8080 |
-| RabbitMQ Management UI | http://localhost:15672 (guest / guest) |
-| Auth Service (direct) | http://localhost:8081 |
-| Recipe Service (direct) | http://localhost:8082 |
-
-### Health Checks
-
-```bash
-curl http://localhost:8080/actuator/health
-curl http://localhost:8081/actuator/health
-curl http://localhost:8082/actuator/health
-```
-
----
 
 ## Scaling Services
 
@@ -366,39 +359,64 @@ RabbitMQ automatically distributes messages across all running instances of a co
 Copy `infrastructure/.env.example` to `infrastructure/.env` and populate:
 
 ```env
-# Gemini AI
-GEMINI_API_KEY=your_gemini_api_key
+# Postgres SQL
+POSTGRES_USER=
+POSTGRES_PASSWORD=
+DB_HOST="localhost"
+DB_PORT=5432
+AUTH_DB_NAME=
+RECIPE_DB_NAME=
+POSTGRES_DB="postgres-db"
 
-# Google OAuth
-GOOGLE_CLIENT_ID=your_google_client_id
-GOOGLE_CLIENT_SECRET=your_google_client_secret
+# PG Admin
+PGADMIN_EMAIL=
+PGADMIN_PASSWORD=
 
-# Apple OAuth
-APPLE_CLIENT_ID=com.yourorg.kitchen.ai
-APPLE_TEAM_ID=YOUR_TEAM_ID
-APPLE_KEY_ID=YOUR_KEY_ID
+# Redis
+REDIS_HOST="localhost"
+REDIS_PORT=6379
+REDIS_PASSWORD=
+
+# Mongo
+MONGO_USER=
+MONGO_PASSWORD=
+# Mongo Express
+MONGO_EXPRESS_USER=
+MONGO_EXPRESS_PASSWORD=
+
+# RabbitMQ
+RABBITMQ_HOST="localhost"
+RABBITMQ_PORT=5672
+RABBITMQ_USER=
+RABBITMQ_PASSWORD=
+
+# Gemini AI Key
+GEMINI_API_KEY=
 
 # JWT
-JWT_SECRET=your_256bit_secret_here
-JWT_ACCESS_TTL_MINUTES=15
-JWT_REFRESH_TTL_DAYS=7
+JWT_SECRET="
+MAX_SIGNATURE_AGE_SECONDS=3600
 
-# Email (SMTP)
-SMTP_HOST=smtp.sendgrid.net
-SMTP_PORT=587
-SMTP_USERNAME=apikey
-SMTP_PASSWORD=your_sendgrid_api_key
+# Client IDs
+ANDROID_APP_ID=
+ANDROID_APP_SECRET=
 
-# Firebase (Push Notifications)
-FIREBASE_SERVICE_ACCOUNT_PATH=/secrets/firebase-service-account.json
+IOS_APP_ID=
+IOS_APP_SECRET=
 
-# Postgres (auto-created by Docker Compose)
-POSTGRES_USER=kitchen.ai
-POSTGRES_PASSWORD=kitchen.ai_secret
+WEB_APP_ID=
+WEB_APP_SECRET=
 
-# RabbitMQ (auto-created by Docker Compose)
-RABBITMQ_USER=kitchen.ai
-RABBITMQ_PASSWORD=kitchen.ai_rabbit
+DESKTOP_APP_ID=
+DESKTOP_APP_SECRET=
+
+MACOS_APP_ID=
+MACOS_APP_SECRET=
+
+# GOOGLE/Firebase
+FIREBASE_SERVICE_ACCOUNT_JSON=
+FIREBASE_STORAGE_BUCKET=
+FIREBASE_STORAGE_FOLDER=
 ```
 
 ---
@@ -414,10 +432,8 @@ RABBITMQ_PASSWORD=kitchen.ai_rabbit
 | **Relational DB** | PostgreSQL 16 |
 | **Document DB** | MongoDB 7 |
 | **Cache / Session** | Redis 7 |
-| **iOS** | Swift 5.9, SwiftUI, Combine |
-| **Android** | Kotlin 1.9, Jetpack Compose, Hilt |
+| **iOS / Android** | React Native |
 | **Containerisation** | Docker, Docker Compose v2 |
-| **Observability** | Spring Actuator, Micrometer, Distributed Tracing (Correlation IDs) |
 | **API Spec** | OpenAPI 3.0 (Springdoc) |
 
 ---
@@ -434,4 +450,4 @@ Please follow [Conventional Commits](https://www.conventionalcommits.org/) for c
 
 ---
 
-<p align="center">Built with ❤️ — Spring Boot · RabbitMQ · Gemini · Swift · Kotlin · Docker</p>
+<p align="center">Built with ❤️ by Ubaid ur Rahman [UuR](http://uur-dev.com/)
