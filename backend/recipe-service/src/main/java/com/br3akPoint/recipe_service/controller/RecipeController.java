@@ -1,10 +1,10 @@
 package com.br3akPoint.recipe_service.controller;
 
 import com.br3akPoint.recipe_service.data.dto.request.RecipeRequestDTO;
-import com.br3akPoint.recipe_service.entity.Recipe;
 import com.br3akPoint.recipe_service.entity.RecipeRequest;
 import com.br3akPoint.recipe_service.service.RecipeService;
 import jakarta.validation.Valid;
+import org.hibernate.query.Page;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,7 +30,7 @@ public class RecipeController {
     }
 
     @GetMapping("/request")
-    public ResponseEntity<ApiResponse<List<RecipeRequest>>> getAllRequest(
+    public ResponseEntity<ApiResponse<?>> getAllRequest(
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "count", defaultValue = "10") int count) {
         var list = recipeService.getAllRequestsByUserId(UserContext.getUserId(), page, count);
@@ -38,7 +38,7 @@ public class RecipeController {
     }
 
     @GetMapping("/all")
-    public ResponseEntity<ApiResponse<List<Recipe>>> getAllRecipe(
+    public ResponseEntity<ApiResponse<?>> getAllRecipe(
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "count", defaultValue = "10") int count) {
         var list = recipeService.getAllByUserId(UserContext.getUserId(), page, count);

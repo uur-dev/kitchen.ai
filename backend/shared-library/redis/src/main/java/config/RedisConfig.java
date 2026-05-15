@@ -1,5 +1,9 @@
 package config;
 
+import cache.CacheProperties;
+import cache.GenericCacheManager;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -10,6 +14,7 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 
 @Configuration
+@EnableConfigurationProperties(CacheProperties.class)
 public class RedisConfig {
 
     @Bean
@@ -45,4 +50,8 @@ public class RedisConfig {
     public StringRedisTemplate stringRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
         return new StringRedisTemplate(redisConnectionFactory);
     }
+
+    /// Cache Config
+    @Bean
+    public CacheProperties cacheProperties() { return new CacheProperties(); }
 }

@@ -5,7 +5,7 @@ spring:
   application:
     name: recipe-service
   profiles:
-    active: rabbitmq
+    active: rabbitmq,redis
   config:
     import: "optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888}"
 

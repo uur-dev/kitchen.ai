@@ -147,7 +147,7 @@ public class RecipeAIListener {
             if(response.getStatus()) {
                 log.info("Recipe Request Status Updated for requestId={}", event.getRequestId());
             } else {
-                log.error("Recipe Request Status Updated for requestId={}", event.getRequestId());
+                log.error("Recipe Request Status Updated Error for requestId={}", event.getRequestId());
             }
         }catch (Exception e) {
             log.error("Recipe Request Status Updated Failed for requestId={}, Exception={}", event.getRequestId(), e.getMessage());
