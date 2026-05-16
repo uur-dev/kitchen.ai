@@ -4,14 +4,19 @@ import com.br3akPoint.api_gateway.data.UserRequestData;
 import org.springframework.cloud.gateway.server.mvc.filter.BeforeFilterFunctions;
 import org.springframework.cloud.gateway.server.mvc.filter.LoadBalancerFilterFunctions;
 import org.springframework.cloud.gateway.server.mvc.handler.GatewayRouterFunctions;
-import org.springframework.cloud.gateway.server.mvc.handler.HandlerFunctions;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.servlet.function.RequestPredicates;
 import org.springframework.web.servlet.function.RouterFunction;
 import org.springframework.web.servlet.function.ServerRequest;
 import org.springframework.web.servlet.function.ServerResponse;
+
+import java.time.Duration;
+
+import static org.springframework.cloud.gateway.server.mvc.filter.Bucket4jFilterFunctions.rateLimit;
+import static org.springframework.cloud.gateway.server.mvc.handler.HandlerFunctions.http;
 
 @Configuration
 public class RoutingConfig {
@@ -28,30 +33,30 @@ public class RoutingConfig {
                 .route(
                         RequestPredicates.path(gatewayPath + "/**")
                                 .or(RequestPredicates.path(gatewayPath)),
-                        HandlerFunctions.http()
+                        http()
                 )
                 .before(BeforeFilterFunctions.rewritePath(
                         gatewayPath + "(?<segment>/.*)?",
                         replacement + "${segment}"
                 ))
-                // --- HEADER FORWARDING LOGIC START ---
+                // --- HEADER FORWARDING ---
                 .before(request -> {
                     var auth = SecurityContextHolder.getContext().getAuthentication();
 
                     if (auth != null && auth.isAuthenticated() && auth.getPrincipal() instanceof UserRequestData userRequest) {
                         if (userRequest.getUserId() != null) {
-                            var requestBuilder =  ServerRequest.from(request)
+                            var requestBuilder = ServerRequest.from(request)
                                     .header("X-User-Id", String.valueOf(userRequest.getUserId()));
 
-                            if(userRequest.getEmail() != null) {
+                            if (userRequest.getEmail() != null) {
                                 requestBuilder.header("X-User-Email", userRequest.getEmail());
                             }
 
-                            if(userRequest.getDeviceType() != null) {
+                            if (userRequest.getDeviceType() != null) {
                                 requestBuilder.header("X-Device-Type", userRequest.getDeviceType());
                             }
 
-                            if(userRequest.getDeviceId() != null) {
+                            if (userRequest.getDeviceId() != null) {
                                 requestBuilder.header("X-Device-Id", userRequest.getDeviceId());
                             }
 
@@ -60,7 +65,18 @@ public class RoutingConfig {
                     }
                     return request;
                 })
-                // --- HEADER FORWARDING LOGIC END ---
+                // --- RATE LIMITING ---
+                // Returns 429 Too Many Requests when the bucket is exhausted.
+                // Redis timeout (3s, set in RateLimiterConfig) surfaces as a 500 only
+                // if Redis is genuinely unreachable; normal throttling always returns 429.
+                .filter(rateLimit(config -> config
+                        .setCapacity(10)
+                        .setPeriod(Duration.ofSeconds(1))
+                        .setStatusCode(HttpStatus.TOO_MANY_REQUESTS) // 429 on rate limit exceeded
+                        .setKeyResolver(request -> request.remoteAddress()
+                                .map(addr -> "rate_limit:" + addr.getAddress().getHostAddress())
+                                .orElse("rate_limit:anonymous"))
+                ))
                 .filter(LoadBalancerFilterFunctions.lb(lbServiceName))
                 .build();
     }
