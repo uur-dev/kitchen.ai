@@ -55,8 +55,8 @@ public class RecipeAIListener {
 
     private void processRecipeWithGenAI(EventRecipeRequestCreated event, Long tagId) throws Exception {
         RecipeAIResponse response = "text".equalsIgnoreCase(event.getType())
-                ? recipeAIService.getRecipeByText(event.getContent())
-                : recipeAIService.getRecipeByImageOrAudio(new UrlMultipartFile(event.getContent()));
+                ? recipeAIService.getRecipeByText(event.getContent(), event.getCuisine())
+                : recipeAIService.getRecipeByImageOrAudio(new UrlMultipartFile(event.getContent()), event.getCuisine());
 
         if (response == null) return;
 

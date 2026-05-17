@@ -1,0 +1,1 @@
+ALTER TABLE recipe_request ADD COLUMN cuisine VARCHAR(100);

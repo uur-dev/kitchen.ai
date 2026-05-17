@@ -66,6 +66,10 @@ public class GenericCacheManager {
         return String.format("%s:id:%d", entity, id);
     }
 
+    private String globalListKey(String entity) {
+        return String.format("%s:list", entity);
+    }
+
     /**
      * Tag set key that tracks ALL cache keys belonging to a specific user.
      * Used for bulk invalidation — delete this set to find all keys to wipe.
@@ -111,6 +115,10 @@ public class GenericCacheManager {
         return get(globalSingleKey(entity, id));
     }
 
+    public <T> Optional<T> getList(String entity) {
+        return get(globalListKey(entity));
+    }
+
     // ─────────────────────────────────────────────────────────────
     // PUT Operations
     // ─────────────────────────────────────────────────────────────
@@ -139,6 +147,10 @@ public class GenericCacheManager {
         put(globalSingleKey(entity, id), data, globalTagKey(entity));
     }
 
+    public void putList(String entity, Object data) {
+        put(globalListKey(entity), data, globalTagKey(entity));
+    }
+
     // ─────────────────────────────────────────────────────────────
     // INVALIDATE Operations
     // ─────────────────────────────────────────────────────────────
@@ -161,6 +173,10 @@ public class GenericCacheManager {
      * Call this after any write to a globally shared entity (e.g. categories).
      */
     public void invalidateGlobal(String entity) {
+        invalidate(globalTagKey(entity), entity, null);
+    }
+
+    public void invalidateList(String entity) {
         invalidate(globalTagKey(entity), entity, null);
     }
 

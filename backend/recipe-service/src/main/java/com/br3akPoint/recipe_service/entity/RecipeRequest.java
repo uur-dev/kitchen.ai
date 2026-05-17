@@ -21,6 +21,9 @@ public class RecipeRequest extends BaseEntity {
     @Column(columnDefinition = "TEXT")
     private String content;
 
+    @Column(length = 20)
+    private String cuisine;
+
     @Enumerated(EnumType.STRING)
     @Column(length = 20)
     private RecipeRequestType type; // Consider using an Enum here

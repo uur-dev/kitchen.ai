@@ -31,11 +31,12 @@ public class RecipeService {
     private final RecipeEventPublisherService publisherService;
     private final RecipeCacheManager recipeCacheManager;
 
-    public RecipeRequest addRecipeRequest(String content, String requestType) {
+    public RecipeRequest addRecipeRequest(String content, String requestType, String cuisine) {
         RecipeRequest request = RecipeRequest.builder()
                 .type(RecipeRequestType.valueOf(requestType))
                 .userId(UserContext.getUserId())
                 .status(RecipeStatus.processing)
+                .cuisine(cuisine)
                 .content(content)
                 .build();
 
@@ -44,12 +45,18 @@ public class RecipeService {
         //invalidate cache for recipe request
         recipeCacheManager.recipeRequestInvalidate(UserContext.getUserId());
 
-        publisherService.publishRecipeRequestCreated(EventRecipeRequestCreated.builder()
-                        .requestId(request.getId())
-                        .userId(request.getUserId())
-                        .content(request.getContent())
-                        .type(request.getType().name())
-                .build());
+        var eventBuilder = EventRecipeRequestCreated.builder()
+                .requestId(request.getId())
+                .userId(request.getUserId())
+                .content(request.getContent())
+                .type(request.getType().name());
+
+        if(cuisine != null) {
+            eventBuilder.cuisine(cuisine);
+        }
+
+        var event = eventBuilder.build();
+        publisherService.publishRecipeRequestCreated(event);
 
         return request;
     }

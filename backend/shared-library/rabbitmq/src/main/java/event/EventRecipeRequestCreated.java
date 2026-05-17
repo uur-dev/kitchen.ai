@@ -14,4 +14,5 @@ public class EventRecipeRequestCreated {
     private Long requestId;
     private String content;
     private String type;
+    private String cuisine;
 }

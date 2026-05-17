@@ -44,12 +44,13 @@ public class RecipeAIService {
      *
      * @param userText  e.g. "a quick vegan pasta with spinach and garlic for 2"
      */
-    public RecipeAIResponse getRecipeByText(String userText) {
+    public RecipeAIResponse getRecipeByText(String userText, String cuisine) {
         try {
             log.debug("Generating recipe from text: {}", userText);
 
             String prompt = load(PROMPT)
                     .replace("{{USER_INPUT}}", userText)
+                    .replace("{{CUISINE}}", (cuisine != null && !cuisine.isEmpty()) ? cuisine : "null")
                     .replace("{{SCHEMA}}",   converter.getFormat());
 
             String rawJson = chatClient.prompt().user(prompt).call().content();
@@ -71,11 +72,12 @@ public class RecipeAIService {
      *
      * @param file  the uploaded MultipartFile
      */
-    public RecipeAIResponse getRecipeByImageOrAudio(MultipartFile file) throws IOException {
+    public RecipeAIResponse getRecipeByImageOrAudio(MultipartFile file, String cuisine) throws IOException {
         log.debug("Generating recipe from media: {} ({})", file.getOriginalFilename(), file.getContentType());
 
         String prompt = load(PROMPT)
                 .replace("{{USER_INPUT}}", "Please Consider Media file for best result")
+                .replace("{{CUISINE}}", (cuisine != null && !cuisine.isEmpty()) ? cuisine : "null")
                 .replace("{{SCHEMA}}",   converter.getFormat());
 
         String rawJson = chatClient

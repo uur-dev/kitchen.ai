@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum CacheEntity {
     RECIPE("recipe"),
+    RECIPE_CUISINE("recipe_cuisine"),
     RECIPE_REQUEST("recipe_request");
 
     private final String value;
