@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -23,6 +24,9 @@ public class RecipeAIResponse {
 
     @JsonProperty("title")
     private String title;
+
+    @JsonProperty("image")
+    private String image;
 
     @JsonProperty("description")
     private String description;
@@ -73,12 +77,12 @@ public class RecipeAIResponse {
         private String notes;
 
         public Map<String, Object> getMap() {
-            return Map.of(
-                    "name", name,
-                    "quantity", quantity,
-                    "unit", unit,
-                    "notes", notes
-            );
+            Map<String, Object> map = new HashMap<>();
+            map.put("name", name);
+            map.put("quantity", quantity);
+            map.put("unit", unit);
+            map.put("notes", notes);  // null-safe now
+            return map;
         }
     }
 
@@ -101,12 +105,12 @@ public class RecipeAIResponse {
         private String tip;
 
         public Map<String, Object> getMap() {
-            return Map.of(
-                    "stepNumber", stepNumber,
-                    "instruction", instruction,
-                    "durationMinutes", durationMinutes,
-                    "tip", tip
-            );
+            Map<String, Object> map = new HashMap<>();
+            map.put("stepNumber", stepNumber);
+            map.put("instruction", instruction);
+            map.put("durationMinutes", durationMinutes);
+            map.put("tip", tip);  // null-safe now
+            return map;
         }
     }
 

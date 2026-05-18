@@ -18,6 +18,7 @@ public class RecipeMapper {
     public static Recipe toEntity(SaveRecipeDTO dto, RecipeRequest recipeRequest) {
         return Recipe.builder()
                 .userId(dto.getUserId())
+                .image(dto.getImage())
                 .requestId(recipeRequest.getId())
                 .title(dto.getTitle())
                 .description(dto.getDescription())
