@@ -34,6 +34,9 @@ public class Recipe extends BaseEntity {
     @Column(columnDefinition = "TEXT")
     private String description;
 
+    @Column(columnDefinition = "TEXT", nullable = true)
+    private String image;
+
     @Column(name = "prep_time_mins")
     private Integer prepTimeMins;
 

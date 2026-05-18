@@ -155,6 +155,7 @@ public class RecipeAIListener {
                 .userId(event.getUserId())
                 .requestId(event.getRequestId())
                 .title(response.getTitle())
+                .image(response.getImage())
                 .description(response.getDescription())
                 .servings(response.getServings())
                 .cuisine(response.getCuisine())

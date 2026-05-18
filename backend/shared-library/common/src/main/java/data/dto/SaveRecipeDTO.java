@@ -16,6 +16,7 @@ public class SaveRecipeDTO {
     private Long userId;
     private Long requestId;
     private String title;
+    private String image;
     private String description;
     private Integer prepTimeMins;
     private Integer cookTimeMins;
