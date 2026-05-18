@@ -42,6 +42,7 @@ public class AuthService {
             AppUser user = AppUser.builder().email(email).password(passwordUtil.encodePassword(password)).build();
 
             userRepository.save(user);
+            return;
         }
 
         throw BusinessException.recordAlreadyExist(ServerErrors.User_Already_Exist);
