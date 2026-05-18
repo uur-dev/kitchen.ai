@@ -8,6 +8,8 @@ spring:
     active: redis,secret
   config:
     import: "optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888}"
+  cache:
+    type: redis
 
   cloud:
     gateway:
@@ -18,5 +20,5 @@ spring:
 
 logging:
   level:
-    io.lettuce.core: DEBUG
-    org.springframework.data.redis: DEBUG
+    io.lettuce.core: info
+    org.springframework.data.redis: info
